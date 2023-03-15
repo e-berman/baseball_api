@@ -1,28 +1,46 @@
 package main
 
 import (
-	"net/http"
+	"context"
 	"log"
-	"io/ioutil"
-	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+	"github.com/e-berman/baseball_api/handlers"
 )
 
 func main() {
+	l := log.New(os.Stdout, "baseball-api", log.LstdFlags)
+	ph := handlers.NewPlayer(l)
 
-	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		log.Println("Hello Jackie Robinson")
-		d, err := ioutil.ReadAll(r.Body)
+	sm := http.NewServeMux()
+	sm.Handle("/", ph)
+
+	s := &http.Server{
+		Addr: ":4242",
+		Handler: sm,
+		IdleTimeout: 120 * time.Second,
+		ReadTimeout: 1 * time.Second,
+		WriteTimeout: 1 * time.Second,
+	}
+
+	go func() {
+		err := s.ListenAndServe()
 		if err != nil {
-			http.Error(rw, "Oops", http.StatusBadRequest)
-			return
+			l.Fatal(err)
 		}
-
-		fmt.Fprintf(rw, "Hello %s", d)
-	})
+	}()
 	
-	http.HandleFunc("/barry_bonds", func(http.ResponseWriter, *http.Request) {
-		log.Println("Hello Barry Bonds")
-	})
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, os.Interrupt)
+	signal.Notify(sigChan, os.Kill)
+	
+	sig := <- sigChan
+	l.Println("Server has been gracefully shutdown.", sig)
+	
+	tc, cancel := context.WithTimeout(context.Background(), 30 * time.Second)
+	defer cancel()
 
-	http.ListenAndServe(":4242", nil)
+	s.Shutdown(tc)
 }
