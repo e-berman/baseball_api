@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 	"io"
+	"fmt"
 )
 
 type Player struct {
@@ -22,6 +23,11 @@ type Player struct {
 
 type Players []*Player
 
+func (p *Player) FromJSON(r io.Reader) error {
+	e := json.NewDecoder(r)
+	return e.Decode(p)
+}
+
 func (p *Players) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
 	e.SetIndent("", "\t")
@@ -30,6 +36,40 @@ func (p *Players) ToJSON(w io.Writer) error {
 
 func GetPlayers() Players {
 	return playerList
+}
+
+func AddPlayer(p *Player) {
+	p.ID = getNextID()
+	playerList = append(playerList, p)
+}
+
+func UpdatePlayer(id int, p *Player) error {
+	_, index, err := findPlayer(id)
+	if err != nil {
+		return err
+	}
+
+	p.ID = id
+	playerList[index] = p
+
+	return nil
+}
+
+var ErrPlayerNotFound = fmt.Errorf("Player not found")
+
+func findPlayer(id int) (*Player, int, error) {
+	for i, p := range playerList {
+		if p.ID == id {
+			return p, i, nil
+		}
+	}
+
+	return nil, -1, ErrPlayerNotFound
+}
+
+func getNextID() int {
+	last_player := playerList[len(playerList) - 1]
+	return last_player.ID + 1
 }
 
 var playerList = []*Player{
@@ -46,7 +86,7 @@ var playerList = []*Player{
 		UpdatedOn:	time.Now().UTC().String(),
 	},
 	{
-		ID:		1,
+		ID:		2,
 		Name:		"Mike Trout",
 		TeamAbbrev:	"LAA",
 		Position:	"CF",
