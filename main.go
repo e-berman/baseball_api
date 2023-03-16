@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	l := log.New(os.Stdout, "baseball-api", log.LstdFlags)
+	l := log.New(os.Stdout, "baseball-api ", log.LstdFlags)
 	ph := handlers.NewPlayer(l)
 
 	sm := http.NewServeMux()
