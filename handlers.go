@@ -109,7 +109,19 @@ func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) err
 }
 
 func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) error {
-	return nil
+	id, err := s.getIDFromPath(req)
+	if err != nil {
+		return err
+	}
+	
+	player, err := s.db.GetPlayerByID(id)
+	if err != nil {
+		return err
+	}
+
+	log.Println("GET player:", player)
+
+	return ToJSON(rw, http.StatusOK, player)
 }
 
 func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) error {
@@ -143,7 +155,6 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 	)
 
 	if err := s.db.AddPlayer(player); err != nil {
-		log.Println(err)
 		return err
 	}
 
