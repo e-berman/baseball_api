@@ -80,12 +80,21 @@ func (s *Server) getIDFromPath(req *http.Request) (int, error) {
 }
 
 func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error {
-	if req.Method == http.MethodGet {
-		return s.handleGetPlayers(rw, req)
-	}
-	if req.Method == http.MethodPost {
-		return s.handleAddPlayer(rw, req)
-	}
+	if req.URL.Path == "/players/" {
+		if req.Method == http.MethodGet {
+			return s.handleGetPlayers(rw, req)
+		}
+		if req.Method == http.MethodPost {
+			return s.handleAddPlayer(rw, req)
+		}
+	} else {
+		if req.Method == http.MethodDelete {
+			return s.handleDeletePlayer(rw, req)
+		}
+		if req.Method == http.MethodGet {
+			return s.handleGetPlayerByID(rw, req)
+		}
+	}	
 	return fmt.Errorf("invalid method %s", req.Method)
 }
 
@@ -151,6 +160,8 @@ func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) e
 	if err != nil {
 		return err
 	}
+
+	log.Println("DELETE player id:", id)
 
 	return ToJSON(rw, http.StatusOK, map[string]int{"deleted": id})
 }
