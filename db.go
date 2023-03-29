@@ -62,7 +62,8 @@ func (pool *DBPool) createPlayerTable() error {
 		slg float(3) CHECK (slg >= 0),
 		woba float(3) CHECK (woba >= 0),
 		wrc_plus integer CHECK (wrc_plus >= 0),
-		war float(3)
+		war float(3),
+		unique (player_name, team, war)
 	)`
 
 	_, err := pool.db.Exec(context.Background(), query)
@@ -72,7 +73,8 @@ func (pool *DBPool) createPlayerTable() error {
 func (pool *DBPool) AddPlayer(player *Player) error {
 	query := `insert into position_players 
 	(player_name, team, position, games, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, war)
-	values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`
+	values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+	on conflict (player_name, team, war) do nothing`
 
 	_, err := pool.db.Exec(context.Background(), query,
 		player.PlayerName,
@@ -103,7 +105,9 @@ func (pool *DBPool) AddPlayer(player *Player) error {
 }
 
 func (pool *DBPool) DeletePlayer(id int) error {
-	_, err := pool.db.Exec(context.Background(), `delete from position_players where id = $1`, id)
+	query := `delete from position_players where player_id = $1`
+
+	_, err := pool.db.Exec(context.Background(), query, id)
 	return err
 }
 
