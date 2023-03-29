@@ -116,7 +116,9 @@ func (pool *DBPool) UpdatePlayer(*Player) error {
 }
 
 func (pool *DBPool) GetPlayers() ([]*Player, error) {
-	rows, err := pool.db.Query(context.Background(), `select * from position_players`)
+	query := `select * from position_players`
+
+	rows, err := pool.db.Query(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -157,6 +159,36 @@ func (pool *DBPool) GetPlayers() ([]*Player, error) {
 	return players, nil
 }
 
-func (pool *DBPool) GetPlayerByID(int) (*Player, error) {
-	return nil, nil
+func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
+	query := `select * from position_players where player_id = $1`
+	player := &Player{}
+
+	err := pool.db.QueryRow(context.Background(), query, id).Scan(
+		&player.ID,
+		&player.PlayerName,
+		&player.Team,
+		&player.Position,
+		&player.Games,
+		&player.PA,
+		&player.HR,
+		&player.R,
+		&player.RBI,
+		&player.SB,
+		&player.BbRate,
+		&player.KRate,
+		&player.ISO,
+		&player.BABIP,
+		&player.AVG,
+		&player.OBP,
+		&player.SLG,
+		&player.WOBA,
+		&player.WRCPlus,
+		&player.LastSeasonWAR,
+	)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return player, nil
+
 }
