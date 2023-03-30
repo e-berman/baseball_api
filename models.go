@@ -27,6 +27,31 @@ type CreatePlayerRequest struct {
 	DeletedOn		string	`json:"-"`
 }
 
+type UpdatePlayerRequest struct {
+	PlayerName		string	`json:"playerName"`
+	Team			string  `json:"team"`
+	Position		string	`json:"position"`
+	Games			int	`json:"games"`
+	PA			int	`json:"plateAppearances"`
+	HR			int	`json:"homeRuns"`
+	R			int     `json:"runs"`
+	RBI			int	`json:"runsBattedIn"`
+	SB			int	`json:"stolenBases"`
+	BbRate			float32	`json:"walkRate"`
+	KRate			float32	`json:"strikeoutRate"`
+	ISO			float32	`json:"isolatedPower"`
+	BABIP			float32 `json:"battingAvgBallsInPlay"`
+	AVG			float32	`json:"battingAvg"`
+	OBP			float32	`json:"onBasePct"`
+	SLG			float32	`json:"sluggingPct"`
+	WOBA			float32	`json:"weightedOnBaseAvg"`
+	WRCPlus			int	`json:"weightedRunsCreatedPlus"`	
+	LastSeasonWAR		float32	`json:"lastSeasonWar"`
+	CreatedOn		string	`json:"-"`
+	UpdatedOn		string	`json:"-"`
+	DeletedOn		string	`json:"-"`
+}
+
 type Player struct {
 	ID			int	        `json:"id"`
 	PlayerName		string	        `json:"playerName"`
