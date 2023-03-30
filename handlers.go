@@ -94,6 +94,9 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 		if req.Method == http.MethodGet {
 			return s.handleGetPlayerByID(rw, req)
 		}
+		if req.Method == http.MethodPut {
+			return s.handleUpdatePlayer(rw, req)
+		}
 	}	
 	return fmt.Errorf("invalid method %s", req.Method)
 }
@@ -119,9 +122,9 @@ func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) 
 		return err
 	}
 
-	log.Println("GET player:", player)
+	log.Println("GET player:", player.PlayerName)
 
-	return ToJSON(rw, http.StatusOK, player)
+	return ToJSON(rw, http.StatusOK, player)	
 }
 
 func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) error {
@@ -158,7 +161,51 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 		return err
 	}
 
-	return ToJSON(rw, http.StatusOK, player)
+	return ToJSON(rw, http.StatusOK, createPlayerReq)
+}
+
+func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) error {
+	id, err := s.getIDFromPath(req)
+	if err != nil {
+		return err
+	}
+	player, err := s.db.GetPlayerByID(id)
+	if err != nil {
+		return err
+	}
+
+	updatePlayerReq := UpdatePlayerRequest{}
+	if err := json.NewDecoder(req.Body).Decode(&updatePlayerReq); err != nil {
+		return err
+	}
+
+	player.PlayerName = updatePlayerReq.PlayerName
+	player.Team = updatePlayerReq.Team
+	player.Position = updatePlayerReq.Position
+	player.Games = updatePlayerReq.Games
+	player.PA = updatePlayerReq.PA
+	player.HR = updatePlayerReq.HR
+	player.R = updatePlayerReq.R
+	player.RBI = updatePlayerReq.RBI
+	player.SB = updatePlayerReq.SB
+	player.WRCPlus = updatePlayerReq.WRCPlus
+	player.BbRate = updatePlayerReq.BbRate
+	player.KRate = updatePlayerReq.KRate
+	player.ISO = updatePlayerReq.ISO
+	player.BABIP = updatePlayerReq.BABIP
+	player.AVG = updatePlayerReq.AVG
+	player.OBP = updatePlayerReq.OBP
+	player.SLG = updatePlayerReq.SLG
+	player.WOBA = updatePlayerReq.WOBA
+	player.LastSeasonWAR = updatePlayerReq.LastSeasonWAR
+
+	if err := s.db.UpdatePlayer(player); err != nil {
+		return err
+	}
+
+	log.Println("UPDATE player id:", id)
+
+	return ToJSON(rw, http.StatusOK, map[string]int{"updated": id})
 }
 
 func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) error {
