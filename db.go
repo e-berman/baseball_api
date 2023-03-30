@@ -70,51 +70,6 @@ func (pool *DBPool) createPlayerTable() error {
 	return err
 }
 
-func (pool *DBPool) AddPlayer(player *Player) error {
-	query := `insert into position_players 
-	(player_name, team, position, games, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, war)
-	values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
-	on conflict (player_name, team, war) do nothing`
-
-	_, err := pool.db.Exec(context.Background(), query,
-		player.PlayerName,
-		player.Team,
-		player.Position,
-		player.Games,
-		player.PA,
-		player.HR,
-		player.R,
-		player.RBI,
-		player.SB,
-		player.WRCPlus,
-		player.BbRate,
-		player.KRate,
-		player.ISO,
-		player.BABIP,
-		player.AVG,
-		player.OBP,
-		player.SLG,
-		player.WOBA,
-		player.LastSeasonWAR,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (pool *DBPool) DeletePlayer(id int) error {
-	query := `delete from position_players where player_id = $1`
-
-	_, err := pool.db.Exec(context.Background(), query, id)
-	return err
-}
-
-func (pool *DBPool) UpdatePlayer(*Player) error {
-	return nil
-}
-
 func (pool *DBPool) GetPlayers() ([]*Player, error) {
 	query := `select * from position_players`
 
@@ -189,6 +144,103 @@ func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
 		log.Println(err)
 		return nil, err
 	}
-	return player, nil
 
+	return player, nil
 }
+
+func (pool *DBPool) AddPlayer(player *Player) error {
+	query := `insert into position_players 
+	(player_name, team, position, games, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, war)
+	values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+	on conflict (player_name, team, war) do nothing`
+
+	_, err := pool.db.Exec(context.Background(), query,
+		&player.PlayerName,
+		&player.Team,
+		&player.Position,
+		&player.Games,
+		&player.PA,
+		&player.HR,
+		&player.R,
+		&player.RBI,
+		&player.SB,
+		&player.WRCPlus,
+		&player.BbRate,
+		&player.KRate,
+		&player.ISO,
+		&player.BABIP,
+		&player.AVG,
+		&player.OBP,
+		&player.SLG,
+		&player.WOBA,
+		&player.LastSeasonWAR,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pool *DBPool) UpdatePlayer(player *Player) error {
+	query := `update position_players set
+	player_name = $1,
+	team = $2,
+	position = $3,
+	games = $4,
+	pa = $5,
+	hr = $6,
+	runs = $7,
+	rbi = $8,
+	sb = $9,
+	wrc_plus = $10,
+	bb_rate = $11,
+	k_rate = $12,
+	iso = $13,
+	babip = $14,
+	average = $15,
+	obp = $16,
+	slg = $17,
+	woba = $18,
+	war = $19
+	where player_id = $20`
+
+	_, err := pool.db.Exec(context.Background(), query,
+		&player.PlayerName,
+		&player.Team,
+		&player.Position,
+		&player.Games,
+		&player.PA,
+		&player.HR,
+		&player.R,
+		&player.RBI,
+		&player.SB,
+		&player.WRCPlus,
+		&player.BbRate,
+		&player.KRate,
+		&player.ISO,
+		&player.BABIP,
+		&player.AVG,
+		&player.OBP,
+		&player.SLG,
+		&player.WOBA,
+		&player.LastSeasonWAR,
+		&player.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	log.Println(player)
+
+	return nil
+}
+
+func (pool *DBPool) DeletePlayer(id int) error {
+	query := `delete from position_players where player_id = $1`
+
+	_, err := pool.db.Exec(context.Background(), query, id)
+	return err
+}
+
+
