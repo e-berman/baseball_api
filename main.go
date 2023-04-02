@@ -13,8 +13,6 @@ func main() {
 
 	if err := dbpool.InitializePlayerTable(); err != nil {
 		log.Fatal(err)
-	} else {
-		
 	}
 
 	server := NewServer(":4242", dbpool)
