@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"context"
-	"os"
 	"log"
+	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 type DB interface {
@@ -28,9 +27,9 @@ func NewDBPool() (*DBPool, error) {
 	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal("Unable to create connection pool: ", err)
-	} else {
-		fmt.Printf("Connected to db on port: %s\n", os.Getenv("PORT"))
-	}
+	} 
+	
+	log.Println("Connected to db on port:", os.Getenv("PORT"))
 	
 	return &DBPool{
 		db: dbpool,
@@ -38,21 +37,20 @@ func NewDBPool() (*DBPool, error) {
 }
 
 func (pool *DBPool) InitializePlayerTable() error {
-	return pool.createPlayerTable()
+	return pool.CreatePlayerTable()
 }
 
-func (pool *DBPool) createPlayerTable() error {
+func (pool *DBPool) CreatePlayerTable() error {
 	query := `create table if not exists position_players (
 		player_id serial primary key NOT NULL,
-		player_name varchar(50) NOT NULL,
+		name varchar(50) NOT NULL,
 		team varchar(3),
-		position varchar(10) NOT NULL,
-		games integer CHECK (games >= 0),
-		pa integer CHECK (pa >= 0),
-		hr integer CHECK (hr >= 0),
-		runs integer CHECK (runs >= 0),
-		rbi integer CHECK (rbi >= 0),
-		sb integer CHECK (sb >= 0),
+		games int CHECK (games >= 0),
+		pa int CHECK (pa >= 0),
+		hr int CHECK (hr >= 0),
+		runs int CHECK (runs >= 0),
+		rbi int CHECK (rbi >= 0),
+		sb int CHECK (sb >= 0),
 		bb_rate float(3) CHECK (bb_rate >= 0),
 		k_rate float(3) CHECK (k_rate >= 0),
 		iso float(3) CHECK (iso >= 0),
@@ -61,17 +59,18 @@ func (pool *DBPool) createPlayerTable() error {
 		obp float(3) CHECK (obp >= 0),
 		slg float(3) CHECK (slg >= 0),
 		woba float(3) CHECK (woba >= 0),
-		wrc_plus integer CHECK (wrc_plus >= 0),
+		wrc_plus int CHECK (wrc_plus >= 0),
 		war float(3),
-		unique (player_name, team, war)
+		unique (name, team, war)
 	)`
 
 	_, err := pool.db.Exec(context.Background(), query)
+
 	return err
 }
 
 func (pool *DBPool) GetPlayers() ([]*Player, error) {
-	query := `select * from position_players`
+	query := `SELECT * FROM position_players`
 
 	rows, err := pool.db.Query(context.Background(), query)
 	if err != nil {
@@ -83,9 +82,8 @@ func (pool *DBPool) GetPlayers() ([]*Player, error) {
 		player := &Player{}
 		err := rows.Scan(
 			&player.ID,
-			&player.PlayerName,
+			&player.Name,
 			&player.Team,
-			&player.Position,
 			&player.Games,
 			&player.PA,
 			&player.HR,
@@ -115,14 +113,13 @@ func (pool *DBPool) GetPlayers() ([]*Player, error) {
 }
 
 func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
-	query := `select * from position_players where player_id = $1`
+	query := `SELECT * FROM position_players WHERE player_id = $1`
 	player := &Player{}
 
 	err := pool.db.QueryRow(context.Background(), query, id).Scan(
 		&player.ID,
-		&player.PlayerName,
+		&player.Name,
 		&player.Team,
-		&player.Position,
 		&player.Games,
 		&player.PA,
 		&player.HR,
@@ -149,15 +146,14 @@ func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
 }
 
 func (pool *DBPool) AddPlayer(player *Player) error {
-	query := `insert into position_players 
-	(player_name, team, position, games, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, war)
-	values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
-	on conflict (player_name, team, war) do nothing`
+	query := `INSERT INTO position_players 
+	(name, team, games, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, war)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+	ON CONFLICT (name, team, war) DO NOTHING`
 
 	_, err := pool.db.Exec(context.Background(), query,
-		&player.PlayerName,
+		&player.Name,
 		&player.Team,
-		&player.Position,
 		&player.Games,
 		&player.PA,
 		&player.HR,
@@ -183,32 +179,30 @@ func (pool *DBPool) AddPlayer(player *Player) error {
 }
 
 func (pool *DBPool) UpdatePlayer(player *Player) error {
-	query := `update position_players set
-	player_name = $1,
+	query := `UPDATE position_players SET
+	name = $1,
 	team = $2,
-	position = $3,
-	games = $4,
-	pa = $5,
-	hr = $6,
-	runs = $7,
-	rbi = $8,
-	sb = $9,
-	wrc_plus = $10,
-	bb_rate = $11,
-	k_rate = $12,
-	iso = $13,
-	babip = $14,
-	average = $15,
-	obp = $16,
-	slg = $17,
-	woba = $18,
-	war = $19
-	where player_id = $20`
+	games = $3,
+	pa = $4,
+	hr = $5,
+	runs = $6,
+	rbi = $7,
+	sb = $8,
+	wrc_plus = $9,
+	bb_rate = $10,
+	k_rate = $11,
+	iso = $12,
+	babip = $13,
+	average = $14,
+	obp = $15,
+	slg = $16,
+	woba = $17,
+	war = $18
+	WHERE player_id = $19`
 
-	_, err := pool.db.Exec(context.Background(), query,
-		&player.PlayerName,
+	res, err := pool.db.Exec(context.Background(), query,
+		&player.Name,
 		&player.Team,
-		&player.Position,
 		&player.Games,
 		&player.PA,
 		&player.HR,
@@ -231,13 +225,13 @@ func (pool *DBPool) UpdatePlayer(player *Player) error {
 		return err
 	}
 
-	log.Println(player)
+	log.Println(res.RowsAffected())
 
 	return nil
 }
 
 func (pool *DBPool) DeletePlayer(id int) error {
-	query := `delete from position_players where player_id = $1`
+	query := `DELETE FROM position_players WHERE player_id = $1`
 
 	_, err := pool.db.Exec(context.Background(), query, id)
 	return err
