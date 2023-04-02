@@ -61,7 +61,7 @@ func (s *Server) StartServer() {
 		WriteTimeout: 5 * time.Second,
 	}
 
-	sm.HandleFunc("/players/", toHandleFunc(s.handlePlayers))
+	sm.HandleFunc("/api/players/", toHandleFunc(s.handlePlayers))
 	
 	log.Println("Server started on port", server.Addr)
 
@@ -80,7 +80,7 @@ func (s *Server) getIDFromPath(req *http.Request) (int, error) {
 }
 
 func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error {
-	if req.URL.Path == "/players/" {
+	if req.URL.Path == "/api/players/" {
 		if req.Method == http.MethodGet {
 			return s.handleGetPlayers(rw, req)
 		}
@@ -122,7 +122,7 @@ func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) 
 		return err
 	}
 
-	log.Println("GET player:", player.PlayerName)
+	log.Println("GET player:", player.Name)
 
 	return ToJSON(rw, http.StatusOK, player)	
 }
@@ -133,12 +133,11 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 		return err
 	}
 
-	log.Println("POST player:", createPlayerReq.PlayerName)
+	log.Println("POST player:", createPlayerReq.Name)
 	
 	player := NewPlayer(
-		createPlayerReq.PlayerName,
+		createPlayerReq.Name,
 		createPlayerReq.Team,
-		createPlayerReq.Position,
 		createPlayerReq.Games,
 		createPlayerReq.PA,
 		createPlayerReq.HR,
@@ -179,9 +178,8 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 		return err
 	}
 
-	player.PlayerName = updatePlayerReq.PlayerName
+	player.Name = updatePlayerReq.Name
 	player.Team = updatePlayerReq.Team
-	player.Position = updatePlayerReq.Position
 	player.Games = updatePlayerReq.Games
 	player.PA = updatePlayerReq.PA
 	player.HR = updatePlayerReq.HR
