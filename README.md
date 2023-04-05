@@ -19,7 +19,7 @@ URL: `http://127.0.0.1:4242/api/players/`
 
 to view table data within container: `docker exec -it <container-name> psql -U <username> <database>`
 
-### Endpoints
+## Endpoints
 
 | HTTP Verbs | Endpoints | Action |
 | --- | --- | --- |
