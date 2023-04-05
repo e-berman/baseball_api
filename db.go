@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 )
 
 type DB interface {
@@ -22,9 +21,9 @@ type DBPool struct {
 }
 
 func NewDBPool() (*DBPool, error) {
-	godotenv.Load()
+	db_url := os.Getenv("POSTGRES_URL")
 
-	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	dbpool, err := pgxpool.New(context.Background(), db_url)
 	if err != nil {
 		log.Fatal("Unable to create connection pool: ", err)
 	} 
@@ -67,6 +66,22 @@ func (pool *DBPool) CreatePlayerTable() error {
 	_, err := pool.db.Exec(context.Background(), query)
 
 	return err
+}
+
+func (pool *DBPool) ClearPlayerTable() error {
+	clear_records_query := `DROP * FROM position_players`
+	reset_id_query := `ALTER SEQUENCE id RESTART WITH 1` 
+
+	_, err_clear := pool.db.Exec(context.Background(), clear_records_query)
+	if err_clear != nil {
+		return err_clear
+	}
+	_, err_reset := pool.db.Exec(context.Background(), reset_id_query) 
+	if err_reset != nil {
+		return err_reset
+	}
+
+	return nil
 }
 
 func (pool *DBPool) GetPlayers() ([]*Player, error) {
@@ -225,7 +240,7 @@ func (pool *DBPool) UpdatePlayer(player *Player) error {
 		return err
 	}
 
-	log.Println(res.RowsAffected())
+	log.Println("rows affected:", res.RowsAffected())
 
 	return nil
 }
