@@ -13,11 +13,11 @@ uses [pgx](https://github.com/jackc/pgx) as the Postgres driver/toolkit and two 
 
 ## To Run
 
-[`docker compose up --build --wait`]
+`docker compose up --build --wait`
 
-URL: [`http://127.0.0.1:4242/api/players/`]
+URL: `http://127.0.0.1:4242/api/players/`
 
-to view table data within container: [`docker exec -it <container-name> psql -U <username> <database> `]
+to view table data within container: `docker exec -it <container-name> psql -U <username> <database>`
 
 ### Endpoints
 
