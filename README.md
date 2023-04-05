@@ -52,4 +52,3 @@ Request Body Example:
     "weightedOnBaseAvg": 0.370,
     "lastSeasonWar": 65.0
 }
-    ```
