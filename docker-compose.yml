@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  rest_api:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - 127.0.0.1:4242:4242
+    volumes:
+      - .:/usr/src/baseball_api
+    command: /build/baseball_api
+    tty: true
+    environment:
+      POSTGRES_URL: ${POSTGRES_URL}
+    networks:
+      - bb-network
+    depends_on:
+      - db
+    restart: on-failure
+
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    environment:
+      POSTGRES_URL: ${POSTGRES_URL}
+    volumes:
+      - ./postgres-db:/var/lib/postgresql/data
+    networks:
+      - bb-network
+
+volumes:
+  postgres-db:
+
+networks:
+  bb-network:
+    driver: bridge
