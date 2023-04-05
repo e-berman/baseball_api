@@ -31,6 +31,7 @@ to view table data within container: `docker exec -it <container-name> psql -U <
 
 Request Body Example:
 
+```
 {
     "name": "Tony Gwynn",
     "team": "SDP",
@@ -51,4 +52,4 @@ Request Body Example:
     "weightedOnBaseAvg": 0.370,
     "lastSeasonWar": 65.0
 }
-
+    ```
