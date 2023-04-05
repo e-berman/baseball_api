@@ -2,9 +2,9 @@
 
 a REST API for baseball player stats.
 
-written in Golang and uses the standard net/http library for routing.
+written in Golang and uses the standard [net/http](https://pkg.go.dev/net/http) library for routing.
 
-uses pgx as the Postgres driver/toolkit and two Docker containers for the api and database.
+uses [pgx](https://github.com/jackc/pgx) as the Postgres driver/toolkit and two Docker containers for the api and database.
 
 ## Dependencies
 
