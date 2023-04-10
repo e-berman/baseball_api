@@ -29,7 +29,7 @@ to view table data within container: `docker exec -it <container-name> psql -U <
 | PUT | /api/players/:id | edit field(s) of a single player |
 | DELETE | /api/players/:id | delete a single player |
 
-Request Body Example:
+Example JSON Payload:
 
 ```
 {
