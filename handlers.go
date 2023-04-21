@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// created for the purpose of referencing the server address and database connection
 type Server struct {
 	addr	 string
 	db       DB
@@ -20,8 +21,10 @@ type PlayerModel struct {
 	player *Player
 }
 
+// reduces code clutter for handleFunc
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
+// error type for apiFunc
 type apiErr struct {
 	Error string
 }
@@ -36,13 +39,14 @@ func toHandleFunc(f apiFunc) http.HandlerFunc {
 	}
 }
 
-// encodes to JSON and writes/sets header
+// ToJSON adds header and encodes to JSON 
 func ToJSON(rw http.ResponseWriter, status int, v any) error {
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(status)
 	return json.NewEncoder(rw).Encode(v)
 }
 
+// NewServer returns a Server struct given a passed server address and database connection
 func NewServer(addr string, db DB) *Server {
 	return &Server{
 		addr: addr,
@@ -50,7 +54,7 @@ func NewServer(addr string, db DB) *Server {
 	}
 }
 
-// starts server and lists routes
+// StartServer starts the HTTP server and handles given routes
 func (s *Server) StartServer() {
 	sm := http.NewServeMux()
 	server := &http.Server{
@@ -68,6 +72,9 @@ func (s *Server) StartServer() {
 	log.Fatal(server.ListenAndServe())
 }
 
+// getIDFromPath returns a player id
+//
+// parses the player id from the url path
 func (s *Server) getIDFromPath(req *http.Request) (int, error) {
 	path_segments := strings.Split(req.URL.Path, "/")
 	player_id_string := path_segments[len(path_segments)-1]
@@ -79,6 +86,9 @@ func (s *Server) getIDFromPath(req *http.Request) (int, error) {
 	return player_id, nil
 }
 
+// handlePlayers handles the various routes given the respective request method
+//
+// conditionally separated based on whether a player id exists in the url or not
 func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error {
 	if req.URL.Path == "/api/players/" {
 		if req.Method == http.MethodGet {
@@ -101,6 +111,7 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 	return fmt.Errorf("invalid method %s", req.Method)
 }
 
+// handleGetPlayers will handle retrieving a list of all players in JSON format
 func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) error {
 	log.Println("GET all players")
 	players, err := s.db.GetPlayers()
@@ -111,6 +122,7 @@ func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) err
 	return ToJSON(rw, http.StatusOK, players)
 }
 
+// handleGetPlayerByID will handle retrieving a player given a player id in JSON format
 func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -127,6 +139,7 @@ func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) 
 	return ToJSON(rw, http.StatusOK, player)	
 }
 
+// handleAddPlayer will handle adding a player to the position_players Postgres table
 func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) error {
 	createPlayerReq := CreatePlayerRequest{}
 	if err := json.NewDecoder(req.Body).Decode(&createPlayerReq); err != nil {
@@ -163,6 +176,7 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 	return ToJSON(rw, http.StatusOK, createPlayerReq)
 }
 
+// handleUpdatePlayer will handle updating a player already existing in the position_players table
 func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -206,6 +220,7 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 	return ToJSON(rw, http.StatusOK, map[string]int{"updated": id})
 }
 
+// handleDeletePlayer will handle deleting a player from the position_players table
 func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
