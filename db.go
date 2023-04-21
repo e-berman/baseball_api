@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// creates the DB type for handlers.go to utilize in the various routes
 type DB interface {
 	AddPlayer(*Player) error
 	DeletePlayer(int) error
@@ -16,10 +17,15 @@ type DB interface {
 	GetPlayerByID(int) (*Player, error)
 }
 
+// Holds the pgxpool.Pool type for the initialization of the Postgres database via the pgx driver
 type DBPool struct {
 	db *pgxpool.Pool
 }
 
+// NewDBPool returns a DBPool instance 
+//
+// sets up a new Postgres pgx pool
+// if pgx pool is unable to be set up, will fail
 func NewDBPool() (*DBPool, error) {
 	db_url := os.Getenv("POSTGRES_URL")
 
@@ -35,10 +41,12 @@ func NewDBPool() (*DBPool, error) {
 	}, nil
 }
 
+// InitializePlayerTable will create the position_players postgres table upon initialization
 func (pool *DBPool) InitializePlayerTable() error {
 	return pool.CreatePlayerTable()
 }
 
+// CreatePlayerTable executes the query to create the position_player table with pgx
 func (pool *DBPool) CreatePlayerTable() error {
 	query := `create table if not exists position_players (
 		player_id serial primary key NOT NULL,
@@ -68,6 +76,7 @@ func (pool *DBPool) CreatePlayerTable() error {
 	return err
 }
 
+// ClearPlayerTable clears the position_players table for testing purposes
 func (pool *DBPool) ClearPlayerTable() error {
 	clear_records_query := `DROP * FROM position_players`
 	reset_id_query := `ALTER SEQUENCE id RESTART WITH 1` 
@@ -84,6 +93,9 @@ func (pool *DBPool) ClearPlayerTable() error {
 	return nil
 }
 
+// GetPlayers will return a list of players
+//
+// retrieves all existing players in the position_players table
 func (pool *DBPool) GetPlayers() ([]*Player, error) {
 	query := `SELECT * FROM position_players`
 
@@ -127,6 +139,9 @@ func (pool *DBPool) GetPlayers() ([]*Player, error) {
 	return players, nil
 }
 
+// GetPlayerByID will return a player
+//
+// it will query the position_players table based on a given player id
 func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
 	query := `SELECT * FROM position_players WHERE player_id = $1`
 	player := &Player{}
@@ -160,6 +175,9 @@ func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
 	return player, nil
 }
 
+// AddPlayer will add a player to the position_players table
+//
+// will return nil if successful, error if unsuccessful
 func (pool *DBPool) AddPlayer(player *Player) error {
 	query := `INSERT INTO position_players 
 	(name, team, games, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, war)
@@ -193,6 +211,9 @@ func (pool *DBPool) AddPlayer(player *Player) error {
 	return nil
 }
 
+// UpdatePlayer will update a player in the position_players table given a player id
+//
+// if unsuccessful, will return an error
 func (pool *DBPool) UpdatePlayer(player *Player) error {
 	query := `UPDATE position_players SET
 	name = $1,
@@ -245,11 +266,10 @@ func (pool *DBPool) UpdatePlayer(player *Player) error {
 	return nil
 }
 
+// DeletePlayer deletes a player by player id in the position_players table
 func (pool *DBPool) DeletePlayer(id int) error {
 	query := `DELETE FROM position_players WHERE player_id = $1`
 
 	_, err := pool.db.Exec(context.Background(), query, id)
 	return err
 }
-
-
