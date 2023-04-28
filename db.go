@@ -113,7 +113,7 @@ func ConvertToFloat(record string) float64 {
 }
 
 func ReadFromCSV() []*Player {
-	file, err := os.Open("/Users/eberman/Downloads/stats.csv")
+	file, err := os.Open("/usr/src/baseball_api/stats.csv")
 	if err != nil {
 		log.Fatalf("Unable to open CSV file: %v\n", err)
 	}

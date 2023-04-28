@@ -6,6 +6,7 @@ COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 COPY .env ./
+COPY stats.csv ./
 COPY *.go ./
 
 RUN go build -o /build/baseball_api

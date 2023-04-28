@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   rest_api:
+    image: rest_api
     build: .
     env_file:
       - .env
@@ -9,6 +10,7 @@ services:
       - 127.0.0.1:4242:4242
     volumes:
       - .:/usr/src/baseball_api
+
     command: /build/baseball_api
     tty: true
     environment:
