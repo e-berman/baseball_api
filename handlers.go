@@ -2,17 +2,17 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"fmt"
-	"time"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Server struct {
-	addr	 string
-	db       DB
+	addr string
+	db   DB
 }
 
 // references the Player model in models.go
@@ -36,7 +36,6 @@ func toHandleFunc(f apiFunc) http.HandlerFunc {
 	}
 }
 
-// encodes to JSON and writes/sets header
 func ToJSON(rw http.ResponseWriter, status int, v any) error {
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(status)
@@ -46,23 +45,22 @@ func ToJSON(rw http.ResponseWriter, status int, v any) error {
 func NewServer(addr string, db DB) *Server {
 	return &Server{
 		addr: addr,
-		db: db,
+		db:   db,
 	}
 }
 
-// starts server and lists routes
 func (s *Server) StartServer() {
 	sm := http.NewServeMux()
 	server := &http.Server{
-		Addr: s.addr,
-		Handler: sm,
-		IdleTimeout: 120 * time.Second,
-		ReadTimeout: 5 * time.Second,
+		Addr:         s.addr,
+		Handler:      sm,
+		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
 
 	sm.HandleFunc("/api/players/", toHandleFunc(s.handlePlayers))
-	
+
 	log.Println("Server started on port", server.Addr)
 
 	log.Fatal(server.ListenAndServe())
@@ -97,7 +95,7 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 		if req.Method == http.MethodPut {
 			return s.handleUpdatePlayer(rw, req)
 		}
-	}	
+	}
 	return fmt.Errorf("invalid method %s", req.Method)
 }
 
@@ -116,7 +114,7 @@ func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		return err
 	}
-	
+
 	player, err := s.db.GetPlayerByID(id)
 	if err != nil {
 		return err
@@ -124,7 +122,7 @@ func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) 
 
 	log.Println("GET player:", player.Name)
 
-	return ToJSON(rw, http.StatusOK, player)	
+	return ToJSON(rw, http.StatusOK, player)
 }
 
 func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) error {
@@ -134,7 +132,7 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 	}
 
 	log.Println("POST player:", createPlayerReq.Name)
-	
+
 	player := NewPlayer(
 		createPlayerReq.Name,
 		createPlayerReq.Team,
@@ -144,16 +142,13 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 		createPlayerReq.R,
 		createPlayerReq.RBI,
 		createPlayerReq.SB,
-		createPlayerReq.WRCPlus,
 		createPlayerReq.BbRate,
 		createPlayerReq.KRate,
 		createPlayerReq.ISO,
-		createPlayerReq.BABIP,
 		createPlayerReq.AVG,
 		createPlayerReq.OBP,
 		createPlayerReq.SLG,
 		createPlayerReq.WOBA,
-		createPlayerReq.LastSeasonWAR,
 	)
 
 	if err := s.db.AddPlayer(player); err != nil {
@@ -186,16 +181,13 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 	player.R = updatePlayerReq.R
 	player.RBI = updatePlayerReq.RBI
 	player.SB = updatePlayerReq.SB
-	player.WRCPlus = updatePlayerReq.WRCPlus
 	player.BbRate = updatePlayerReq.BbRate
 	player.KRate = updatePlayerReq.KRate
 	player.ISO = updatePlayerReq.ISO
-	player.BABIP = updatePlayerReq.BABIP
 	player.AVG = updatePlayerReq.AVG
 	player.OBP = updatePlayerReq.OBP
 	player.SLG = updatePlayerReq.SLG
 	player.WOBA = updatePlayerReq.WOBA
-	player.LastSeasonWAR = updatePlayerReq.LastSeasonWAR
 
 	if err := s.db.UpdatePlayer(player); err != nil {
 		return err
