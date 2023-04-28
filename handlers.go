@@ -66,6 +66,7 @@ func (s *Server) StartServer() {
 	}
 
 	sm.HandleFunc("/api/players/", toHandleFunc(s.handlePlayers))
+	sm.HandleFunc("/api/players/external/", toHandleFunc(s.handleCSVImport))
 
 	log.Println("Server started on port", server.Addr)
 
@@ -108,7 +109,31 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 			return s.handleUpdatePlayer(rw, req)
 		}
 	}
+
 	return fmt.Errorf("invalid method %s", req.Method)
+}
+
+func (s *Server) handleCSVImport(rw http.ResponseWriter, req *http.Request) error {
+	if req.URL.Path == "/api/players/external/" {
+		if req.Method == http.MethodPost {
+			return s.handleAddPlayersByCSVImport(rw, req)
+		}
+	}
+
+	return fmt.Errorf("invalid method %s", req.Method)
+}
+
+func (s *Server) handleAddPlayersByCSVImport(rw http.ResponseWriter, req *http.Request) error {
+	log.Println("POST players from CSV")
+	players := ReadFromCSV()
+	for _, player := range players {
+		err := s.db.AddPlayer(player)
+		if err != nil {
+			return err
+		}
+	}
+
+	return ToJSON(rw, http.StatusOK, players)
 }
 
 // handleGetPlayers will handle retrieving a list of all players in JSON format
