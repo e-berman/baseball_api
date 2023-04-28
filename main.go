@@ -15,12 +15,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	players := ReadFromCSV()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(players)
-
 	server := NewServer(":4242", dbpool)
 	server.StartServer()
 }
