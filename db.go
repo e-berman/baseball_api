@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 type DB interface {
@@ -21,15 +24,16 @@ type DBPool struct {
 }
 
 func NewDBPool() (*DBPool, error) {
+	godotenv.Load()
 	db_url := os.Getenv("POSTGRES_URL")
 
 	dbpool, err := pgxpool.New(context.Background(), db_url)
 	if err != nil {
 		log.Fatal("Unable to create connection pool: ", err)
-	} 
-	
+	}
+
 	log.Println("Connected to db on port:", os.Getenv("PORT"))
-	
+
 	return &DBPool{
 		db: dbpool,
 	}, nil
@@ -53,14 +57,11 @@ func (pool *DBPool) CreatePlayerTable() error {
 		bb_rate float(3) CHECK (bb_rate >= 0),
 		k_rate float(3) CHECK (k_rate >= 0),
 		iso float(3) CHECK (iso >= 0),
-		babip float(3) CHECK (babip >= 0),
 		average float(3) CHECK (average >= 0),
 		obp float(3) CHECK (obp >= 0),
 		slg float(3) CHECK (slg >= 0),
 		woba float(3) CHECK (woba >= 0),
-		wrc_plus int CHECK (wrc_plus >= 0),
-		war float(3),
-		unique (name, team, war)
+		unique (name, team)
 	)`
 
 	_, err := pool.db.Exec(context.Background(), query)
@@ -70,18 +71,79 @@ func (pool *DBPool) CreatePlayerTable() error {
 
 func (pool *DBPool) ClearPlayerTable() error {
 	clear_records_query := `DROP * FROM position_players`
-	reset_id_query := `ALTER SEQUENCE id RESTART WITH 1` 
+	reset_id_query := `ALTER SEQUENCE id RESTART WITH 1`
 
 	_, err_clear := pool.db.Exec(context.Background(), clear_records_query)
 	if err_clear != nil {
 		return err_clear
 	}
-	_, err_reset := pool.db.Exec(context.Background(), reset_id_query) 
+	_, err_reset := pool.db.Exec(context.Background(), reset_id_query)
 	if err_reset != nil {
 		return err_reset
 	}
 
 	return nil
+}
+
+func ConvertToInt(record string) int {
+	val, err := strconv.Atoi(record)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return val
+}
+
+func ConvertToFloat(record string) float64 {
+	val, err := strconv.ParseFloat(record, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return val
+}
+
+func ReadFromCSV() []*Player {
+	file, err := os.Open("/Users/eberman/Downloads/stats.csv")
+	if err != nil {
+		log.Fatalf("Unable to open CSV file: %v\n", err)
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		log.Fatalf("Unable to read CSV file: %v\n", err)
+	}
+
+	var players []*Player
+
+	for i, record := range records {
+		if i == 0 {
+			continue
+		}
+
+		row := &Player{
+			Name:   record[0],
+			Team:   record[1],
+			Games:  ConvertToInt(record[2]),
+			PA:     ConvertToInt(record[3]),
+			HR:     ConvertToInt(record[4]),
+			R:      ConvertToInt(record[5]),
+			RBI:    ConvertToInt(record[6]),
+			SB:     ConvertToInt(record[7]),
+			BbRate: ConvertToFloat(record[8]),
+			KRate:  ConvertToFloat(record[9]),
+			ISO:    ConvertToFloat(record[10]),
+			AVG:    ConvertToFloat(record[11]),
+			OBP:    ConvertToFloat(record[12]),
+			SLG:    ConvertToFloat(record[13]),
+			WOBA:   ConvertToFloat(record[14]),
+		}
+		players = append(players, row)
+	}
+
+	return players
 }
 
 func (pool *DBPool) GetPlayers() ([]*Player, error) {
@@ -108,15 +170,12 @@ func (pool *DBPool) GetPlayers() ([]*Player, error) {
 			&player.BbRate,
 			&player.KRate,
 			&player.ISO,
-			&player.BABIP,
 			&player.AVG,
 			&player.OBP,
 			&player.SLG,
 			&player.WOBA,
-			&player.WRCPlus,
-			&player.LastSeasonWAR,
-		) 
-			
+		)
+
 		if err != nil {
 			return nil, err
 		}
@@ -144,13 +203,10 @@ func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
 		&player.BbRate,
 		&player.KRate,
 		&player.ISO,
-		&player.BABIP,
 		&player.AVG,
 		&player.OBP,
 		&player.SLG,
 		&player.WOBA,
-		&player.WRCPlus,
-		&player.LastSeasonWAR,
 	)
 	if err != nil {
 		log.Println(err)
@@ -162,9 +218,9 @@ func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
 
 func (pool *DBPool) AddPlayer(player *Player) error {
 	query := `INSERT INTO position_players 
-	(name, team, games, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, war)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-	ON CONFLICT (name, team, war) DO NOTHING`
+	(name, team, games, pa, hr, runs, rbi, sb, bb_rate, k_rate, iso, average, obp, slg, woba)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+	ON CONFLICT (name, team) DO NOTHING`
 
 	_, err := pool.db.Exec(context.Background(), query,
 		&player.Name,
@@ -175,16 +231,13 @@ func (pool *DBPool) AddPlayer(player *Player) error {
 		&player.R,
 		&player.RBI,
 		&player.SB,
-		&player.WRCPlus,
 		&player.BbRate,
 		&player.KRate,
 		&player.ISO,
-		&player.BABIP,
 		&player.AVG,
 		&player.OBP,
 		&player.SLG,
 		&player.WOBA,
-		&player.LastSeasonWAR,
 	)
 	if err != nil {
 		return err
@@ -203,17 +256,14 @@ func (pool *DBPool) UpdatePlayer(player *Player) error {
 	runs = $6,
 	rbi = $7,
 	sb = $8,
-	wrc_plus = $9,
-	bb_rate = $10,
-	k_rate = $11,
-	iso = $12,
-	babip = $13,
-	average = $14,
-	obp = $15,
-	slg = $16,
-	woba = $17,
-	war = $18
-	WHERE player_id = $19`
+	bb_rate = $9,
+	k_rate = $10,
+	iso = $11,
+	average = $12,
+	obp = $13,
+	slg = $14,
+	woba = $15,
+	WHERE player_id = $16`
 
 	res, err := pool.db.Exec(context.Background(), query,
 		&player.Name,
@@ -224,16 +274,13 @@ func (pool *DBPool) UpdatePlayer(player *Player) error {
 		&player.R,
 		&player.RBI,
 		&player.SB,
-		&player.WRCPlus,
 		&player.BbRate,
 		&player.KRate,
 		&player.ISO,
-		&player.BABIP,
 		&player.AVG,
 		&player.OBP,
 		&player.SLG,
 		&player.WOBA,
-		&player.LastSeasonWAR,
 		&player.ID,
 	)
 	if err != nil {
@@ -251,5 +298,3 @@ func (pool *DBPool) DeletePlayer(id int) error {
 	_, err := pool.db.Exec(context.Background(), query, id)
 	return err
 }
-
-
