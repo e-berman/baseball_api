@@ -66,7 +66,7 @@ func (s *Server) StartServer() {
 	}
 
 	sm.HandleFunc("/api/players/", toHandleFunc(s.handlePlayers))
-	sm.HandleFunc("/api/players/external/", toHandleFunc(s.handleCSVImport))
+	sm.HandleFunc("/api/players/import/", toHandleFunc(s.handleCSVImport))
 
 	log.Println("Server started on port", server.Addr)
 
@@ -114,7 +114,7 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 }
 
 func (s *Server) handleCSVImport(rw http.ResponseWriter, req *http.Request) error {
-	if req.URL.Path == "/api/players/external/" {
+	if req.URL.Path == "/api/players/import/" {
 		if req.Method == http.MethodPost {
 			return s.handleAddPlayersByCSVImport(rw, req)
 		}

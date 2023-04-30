@@ -41,7 +41,7 @@ uses [pgx](https://github.com/jackc/pgx) as the Postgres driver/toolkit and two 
 | GET | /api/players/ | retrieve all players |
 | GET | /api/causes/:id | retrieve a single player |
 | POST | /api/players/ | add a new player |
-| POST | /api/players/external/ | import a list of players via csv |
+| POST | /api/players/import/ | import a list of players via csv |
 | PUT | /api/players/:id | edit field(s) of a single player |
 | DELETE | /api/players/:id | delete a single player |
 
