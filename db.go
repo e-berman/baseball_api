@@ -69,8 +69,7 @@ func (pool *DBPool) CreatePlayerTable() error {
 		obp float(3) CHECK (obp >= 0),
 		slg float(3) CHECK (slg >= 0),
 		woba float(3) CHECK (woba >= 0),
-		unique (name, team)
-	)`
+		unique (name, team))`
 
 	_, err := pool.db.Exec(context.Background(), query)
 

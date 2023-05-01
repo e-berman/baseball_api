@@ -16,11 +16,6 @@ type Server struct {
 	db   DB
 }
 
-// references the Player model in models.go
-// type PlayerModel struct {
-// 	player *Player
-// }
-
 // reduces code clutter for handleFunc
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
