@@ -15,7 +15,6 @@ func main() {
 	fmt.Println("[Y]: Yes")
 	fmt.Println("[N]: No")
 	fmt.Scanln(&choice)
-	fmt.Println("You entered: ", choice)
 
 	if strings.ToLower(choice) == "y" {
 		fmt.Println("Enter the absolute filepath of the csv import file: ")
