@@ -101,6 +101,7 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 			return s.handleGetPlayerByID(rw, req)
 		}
 		if req.Method == http.MethodPut {
+
 			return s.handleUpdatePlayer(rw, req)
 		}
 	}
@@ -131,7 +132,16 @@ func (s *Server) handleAddPlayersByCSVImport(rw http.ResponseWriter, req *http.R
 	return ToJSON(rw, http.StatusOK, players)
 }
 
-// handleGetPlayers will handle retrieving a list of all players in JSON format
+// swagger:route GET /api/players/ getPlayers
+//
+// # Returns all position players
+//
+// ---
+// produces:
+// - application/json
+// responses:
+//
+//	200: Player
 func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) error {
 	log.Println("GET all players")
 	players, err := s.db.GetPlayers()
@@ -142,7 +152,24 @@ func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) err
 	return ToJSON(rw, http.StatusOK, players)
 }
 
-// handleGetPlayerByID will handle retrieving a player given a player id in JSON format
+// swagger:route GET /api/players/{id} getPlayerByID
+//
+// # Returns a Player by given id
+//
+// ---
+// produces:
+// - application/json
+//
+// parameters:
+//   + name: id
+//     in: path
+//     required: true
+//     schema:
+//     	type: integer
+//
+// responses:
+//
+//	200: Player
 func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -159,7 +186,17 @@ func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) 
 	return ToJSON(rw, http.StatusOK, player)
 }
 
-// handleAddPlayer will handle adding a player to the position_players Postgres table
+// swagger:route POST /api/players/ addPlayer
+//
+// # Adds a Player to the database
+//
+// ---
+// produces:
+// - application/json
+//
+// responses:
+//
+//	200: CreatePlayerRequest
 func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) error {
 	createPlayerReq := CreatePlayerRequest{}
 	if err := json.NewDecoder(req.Body).Decode(&createPlayerReq); err != nil {
@@ -193,7 +230,24 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 	return ToJSON(rw, http.StatusOK, createPlayerReq)
 }
 
-// handleUpdatePlayer will handle updating a player already existing in the position_players table
+// swagger:route PUT /api/players/{id} updatePlayer
+//
+// # Updates a Player given an id
+//
+// ---
+// produces:
+// - application/json
+//
+// parameters:
+//   + name: id
+//     in: path
+//     required: true
+//     schema:
+//     	type: integer
+//
+// responses:
+//
+//	200: UpdatePlayerRequest
 func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -234,7 +288,24 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 	return ToJSON(rw, http.StatusOK, map[string]int{"updated": id})
 }
 
-// handleDeletePlayer will handle deleting a player from the position_players table
+// swagger:route DELETE /api/players/{id} deletePlayer
+//
+// # Deletes a Player from the database given id
+//
+// ---
+// produces:
+// - application/json
+//
+// parameters:
+//   + name: id
+//     in: path
+//     required: true
+//     schema:
+//     	type: integer
+//
+// responses:
+//
+//	200: Player
 func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
