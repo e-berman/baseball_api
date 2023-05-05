@@ -1,0 +1,435 @@
+basePath: /
+consumes:
+    - application/json
+definitions:
+    CreatePlayerRequest:
+        description: CreatePlayerRequest is the type used to create a player
+        properties:
+            battingAvg:
+                description: Batting average of a player in a season
+                example: 0.245
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: AVG
+            games:
+                description: Number of games played in a season
+                format: int64
+                maximum: 162
+                minimum: 0
+                type: integer
+                x-go-name: Games
+            homeRuns:
+                description: Number of home runs in a season
+                format: int64
+                maximum: 90
+                minimum: 0
+                type: integer
+                x-go-name: HR
+            isolatedPower:
+                description: Raw power of a hitter ased on extra base hits and the type of extra base hit
+                example: 0.131
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: ISO
+            name:
+                description: Player name
+                minLength: 3
+                type: string
+                x-go-name: Name
+            onBasePct:
+                description: Rate at which a player gets on base
+                example: 0.352
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: OBP
+            plateAppearances:
+                description: Number of plate appearances in a season
+                format: int64
+                maximum: 800
+                minimum: 0
+                type: integer
+                x-go-name: PA
+            runs:
+                description: Number of runs in a season
+                format: int64
+                maximum: 200
+                minimum: 0
+                type: integer
+                x-go-name: R
+            runsBattedIn:
+                description: Number of runs batted in in a season
+                format: int64
+                maximum: 200
+                minimum: 0
+                type: integer
+                x-go-name: RBI
+            sluggingPct:
+                description: Total number of bases a player records per at bat
+                example: 0.333
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: SLG
+            stolenBases:
+                description: Number of stolen bases in a season
+                format: int64
+                maximum: 150
+                minimum: 0
+                type: integer
+                x-go-name: SB
+            strikeoutRate:
+                description: Rate at which a player strikes out in a season
+                example: 20.7
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: KRate
+            team:
+                description: Team of player
+                example: TBR
+                maxLength: 3
+                type: string
+                x-go-name: Team
+            walkRate:
+                description: Rate at which a player walks in a season
+                example: 14.3
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: BbRate
+            weightedOnBaseAvg:
+                description: version of OBP that accounts for how the player got on base
+                example: 0.31
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: WOBA
+        required:
+            - name
+        type: object
+        x-go-package: github.com/e-berman/baseball_api
+    Player:
+        description: Player is the type used to represent a player
+        properties:
+            battingAvg:
+                description: Batting average of a player in a season
+                example: 0.245
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: AVG
+            games:
+                description: Number of games played in a season
+                format: int64
+                maximum: 162
+                minimum: 0
+                type: integer
+                x-go-name: Games
+            homeRuns:
+                description: Number of home runs in a season
+                format: int64
+                maximum: 90
+                minimum: 0
+                type: integer
+                x-go-name: HR
+            id:
+                description: Player id (auto incremented by database)
+                format: int64
+                type: integer
+                x-go-name: ID
+            isolatedPower:
+                description: Raw power of a hitter ased on extra base hits and the type of extra base hit
+                example: 0.131
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: ISO
+            name:
+                description: Player name
+                minLength: 3
+                type: string
+                x-go-name: Name
+            onBasePct:
+                description: Rate at which a player gets on base
+                example: 0.352
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: OBP
+            plateAppearances:
+                description: Number of plate appearances in a season
+                format: int64
+                maximum: 800
+                minimum: 0
+                type: integer
+                x-go-name: PA
+            runs:
+                description: Number of runs in a season
+                format: int64
+                maximum: 200
+                minimum: 0
+                type: integer
+                x-go-name: R
+            runsBattedIn:
+                description: Number of runs batted in in a season
+                format: int64
+                maximum: 200
+                minimum: 0
+                type: integer
+                x-go-name: RBI
+            sluggingPct:
+                description: Total number of bases a player records per at bat
+                example: 0.333
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: SLG
+            stolenBases:
+                description: Number of stolen bases in a season
+                format: int64
+                maximum: 150
+                minimum: 0
+                type: integer
+                x-go-name: SB
+            strikeoutRate:
+                description: Rate at which a player strikes out in a season
+                example: 20.7
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: KRate
+            team:
+                description: Team of player
+                example: TBR
+                maxLength: 3
+                type: string
+                x-go-name: Team
+            walkRate:
+                description: Rate at which a player walks in a season
+                example: 14.3
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: BbRate
+            weightedOnBaseAvg:
+                description: version of OBP that accounts for how the player got on base
+                example: 0.31
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: WOBA
+        required:
+            - name
+        type: object
+        x-go-package: github.com/e-berman/baseball_api
+    UpdatePlayerRequest:
+        description: UpdatePlayerRequest is the type used to update a player
+        properties:
+            battingAvg:
+                description: Batting average of a player in a season
+                example: 0.245
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: AVG
+            games:
+                description: Number of games played in a season
+                format: int64
+                maximum: 162
+                minimum: 0
+                type: integer
+                x-go-name: Games
+            homeRuns:
+                description: Number of home runs in a season
+                format: int64
+                maximum: 90
+                minimum: 0
+                type: integer
+                x-go-name: HR
+            isolatedPower:
+                description: Raw power of a hitter ased on extra base hits and the type of extra base hit
+                example: 0.131
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: ISO
+            name:
+                description: Player name
+                minLength: 3
+                type: string
+                x-go-name: Name
+            onBasePct:
+                description: Rate at which a player gets on base
+                example: 0.352
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: OBP
+            plateAppearances:
+                description: Number of plate appearances in a season
+                format: int64
+                maximum: 800
+                minimum: 0
+                type: integer
+                x-go-name: PA
+            runs:
+                description: Number of runs in a season
+                format: int64
+                maximum: 200
+                minimum: 0
+                type: integer
+                x-go-name: R
+            runsBattedIn:
+                description: Number of runs batted in in a season
+                format: int64
+                maximum: 200
+                minimum: 0
+                type: integer
+                x-go-name: RBI
+            sluggingPct:
+                description: Total number of bases a player records per at bat
+                example: 0.333
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: SLG
+            stolenBases:
+                description: Number of stolen bases in a season
+                format: int64
+                maximum: 150
+                minimum: 0
+                type: integer
+                x-go-name: SB
+            strikeoutRate:
+                description: Rate at which a player strikes out in a season
+                example: 20.7
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: KRate
+            team:
+                description: Team of player
+                example: TBR
+                maxLength: 3
+                type: string
+                x-go-name: Team
+            walkRate:
+                description: Rate at which a player walks in a season
+                example: 14.3
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: BbRate
+            weightedOnBaseAvg:
+                description: version of OBP that accounts for how the player got on base
+                example: 0.31
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: WOBA
+        required:
+            - name
+        type: object
+        x-go-package: github.com/e-berman/baseball_api
+host: localhost
+info:
+    description: This application is a REST API for baseball players stats
+    title: Baseball API
+    version: 0.0.1
+paths:
+    /api/players/:
+        get:
+            operationId: getPlayers
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: Player
+                    schema:
+                        $ref: '#/definitions/Player'
+            summary: Returns all position players
+        post:
+            operationId: addPlayer
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: CreatePlayerRequest
+                    schema:
+                        $ref: '#/definitions/CreatePlayerRequest'
+            summary: Adds a Player to the database
+    /api/players/{id}:
+        delete:
+            operationId: deletePlayer
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  type: integer
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: Player
+                    schema:
+                        $ref: '#/definitions/Player'
+            summary: Deletes a Player from the database given id
+        get:
+            operationId: getPlayerByID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  type: integer
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: Player
+                    schema:
+                        $ref: '#/definitions/Player'
+            summary: Returns a Player by given id
+        put:
+            operationId: updatePlayer
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  type: integer
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: UpdatePlayerRequest
+                    schema:
+                        $ref: '#/definitions/UpdatePlayerRequest'
+            summary: Updates a Player given an id
+produces:
+    - application/json
+schemes:
+    - http
+swagger: "2.0"
