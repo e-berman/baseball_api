@@ -2,6 +2,14 @@ basePath: /
 consumes:
     - application/json
 definitions:
+    AddedPlayers:
+        description: AddedPlayers is the type used to return the number of players imported via .csv
+        type: object
+        additionalProperties:
+            type: integer
+        example:
+            added: 15
+        x-go-package: github.com/e-berman/baseball_api
     CreatePlayerRequest:
         description: CreatePlayerRequest is the type used to create a player
         properties:
@@ -117,6 +125,14 @@ definitions:
         required:
             - name
         type: object
+        x-go-package: github.com/e-berman/baseball_api
+    DeletedPlayer:
+        description: DeletedPlayer is the type used to return the id of the player deleted upon success
+        type: object
+        additionalProperties:
+            type: integer
+        example:
+            deleted: 3
         x-go-package: github.com/e-berman/baseball_api
     Player:
         description: Player is the type used to represent a player
@@ -355,6 +371,14 @@ definitions:
             - name
         type: object
         x-go-package: github.com/e-berman/baseball_api
+    UpdatedPlayer:
+        description: UpdatedPlayer is the type used to return the id of the player updated upon success
+        type: object
+        additionalProperties:
+            type: integer
+        example:
+            updated: 1
+        x-go-package: github.com/e-berman/baseball_api
 host: localhost
 info:
     description: This application is a REST API for baseball players stats
@@ -394,9 +418,9 @@ paths:
                 - application/json
             responses:
                 "200":
-                    description: Player
+                    description: DeletedPlayer
                     schema:
-                        $ref: '#/definitions/Player'
+                        $ref: '#/definitions/DeletedPlayer'
             summary: Deletes a Player from the database given id
         get:
             operationId: getPlayerByID
@@ -424,10 +448,21 @@ paths:
                 - application/json
             responses:
                 "200":
-                    description: UpdatePlayerRequest
+                    description: UpdatedPlayer
                     schema:
-                        $ref: '#/definitions/UpdatePlayerRequest'
+                        $ref: '#/definitions/UpdatedPlayer'
             summary: Updates a Player given an id
+    /api/players/import/:
+        post:
+            operationId: addPlayersByCSV
+            produces:
+                - application/json
+            responses:
+                "200":
+                    description: AddedPlayers
+                    schema:
+                        $ref: '#/definitions/AddedPlayers'
+            summary: Adds Player(s) to the database from an imported .csv
 produces:
     - application/json
 schemes:
