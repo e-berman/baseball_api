@@ -218,6 +218,30 @@ type UpdatePlayerRequest struct {
 	WOBA float64 `json:"weightedOnBaseAvg"`
 }
 
+// UpdatedPlayer is the type used to return the id of the player updated upon success
+// swagger:model
+type UpdatedPlayer struct {
+	// Map of "updated" key and id value
+	// example: [{"updated": 1}]
+	updatedMap map[string]int
+}
+
+// AddedPlayers is the type used to return the number of players imported via .csv
+// swagger:model
+type AddedPlayers struct {
+	// Map of "added" key and number of players added value
+	// additionalProperties: integer
+	addedMap map[string]int
+}
+
+// DeletedPlayer is the type used to return the id of the player deleted upon success
+// swagger:model
+type DeletedPlayer struct {
+	// Map of "deleted" key and id of player deleted value
+	// example: [{"deleted": 3}]
+	deletedMap map[string]int
+}
+
 func NewPlayer(name, team string, games, pa, hr, r, rbi, sb int, bbRate, kRate, iso, avg, obp, slg, woba float64) *Player {
 	return &Player{
 		Name:   name,
