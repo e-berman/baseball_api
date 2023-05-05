@@ -119,17 +119,6 @@ func (s *Server) handleCSVImport(rw http.ResponseWriter, req *http.Request) erro
 	return fmt.Errorf("invalid method %s", req.Method)
 }
 
-// swagger:route POST /api/players/import/ addPlayersByCSV
-//
-// # Adds Player(s) to the database from an imported .csv
-//
-// ---
-// produces:
-// - application/json
-//
-// responses:
-//
-//	200: AddedPlayers
 func (s *Server) handleAddPlayersByCSVImport(rw http.ResponseWriter, req *http.Request) error {
 	log.Println("POST players from CSV")
 	players := ReadFromCSV()
@@ -141,7 +130,7 @@ func (s *Server) handleAddPlayersByCSVImport(rw http.ResponseWriter, req *http.R
 	}
 
 	resMap := AddedPlayers{
-		addedMap: map[string]int {
+		addedMap: map[string]int{
 			"added": len(players),
 		},
 	}
@@ -149,17 +138,6 @@ func (s *Server) handleAddPlayersByCSVImport(rw http.ResponseWriter, req *http.R
 	return ToJSON(rw, http.StatusOK, resMap.addedMap)
 }
 
-// swagger:route GET /api/players/ getPlayers
-//
-// # Returns all position players
-//
-// ---
-// produces:
-// - application/json
-//
-// responses:
-//
-//	200: Player
 func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) error {
 	log.Println("GET all players")
 	players, err := s.db.GetPlayers()
@@ -170,24 +148,6 @@ func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) err
 	return ToJSON(rw, http.StatusOK, players)
 }
 
-// swagger:route GET /api/players/{id} getPlayerByID
-//
-// # Returns a Player by given id
-//
-// ---
-// produces:
-// - application/json
-//
-// parameters:
-//   + name: id
-//     in: path
-//     required: true
-//     schema:
-//     	type: integer
-//
-// responses:
-//
-//	200: Player
 func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -204,17 +164,6 @@ func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) 
 	return ToJSON(rw, http.StatusOK, player)
 }
 
-// swagger:route POST /api/players/ addPlayer
-//
-// # Adds a Player to the database
-//
-// ---
-// produces:
-// - application/json
-//
-// responses:
-//
-//	200: CreatePlayerRequest
 func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) error {
 	createPlayerReq := CreatePlayerRequest{}
 	if err := json.NewDecoder(req.Body).Decode(&createPlayerReq); err != nil {
@@ -248,24 +197,7 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 	return ToJSON(rw, http.StatusOK, createPlayerReq)
 }
 
-// swagger:route PUT /api/players/{id} updatePlayer
-//
-// # Updates a Player given an id
-//
-// ---
-// produces:
-// - application/json
-//
-// parameters:
-//   + name: id
-//     in: path
-//     required: true
-//     schema:
-//     type: integer
-//
-// responses:
-//
-//	200: UpdatedPlayer
+
 func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -304,7 +236,7 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 	log.Println("UPDATE player id:", id)
 
 	resMap := UpdatedPlayer{
-		updatedMap: map[string]int {
+		updatedMap: map[string]int{
 			"updated": id,
 		},
 	}
@@ -312,24 +244,7 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 	return ToJSON(rw, http.StatusOK, resMap.updatedMap)
 }
 
-// swagger:route DELETE /api/players/{id} deletePlayer
-//
-// # Deletes a Player from the database given id
-//
-// ---
-// produces:
-// - application/json
-//
-// parameters:
-//   + name: id
-//     in: path
-//     required: true
-//     schema:
-//     type: integer
-//
-// responses:
-//
-//	200: DeletedPlayer
+
 func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -344,7 +259,7 @@ func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) e
 	log.Println("DELETE player id:", id)
 
 	resMap := DeletedPlayer{
-		deletedMap: map[string]int {
+		deletedMap: map[string]int{
 			"deleted": id,
 		},
 	}
