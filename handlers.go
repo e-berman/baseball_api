@@ -119,6 +119,17 @@ func (s *Server) handleCSVImport(rw http.ResponseWriter, req *http.Request) erro
 	return fmt.Errorf("invalid method %s", req.Method)
 }
 
+// swagger:route POST /api/players/import/ addPlayersByCSV
+//
+// # Adds Player(s) to the database from an imported .csv
+//
+// ---
+// produces:
+// - application/json
+//
+// responses:
+//
+//	200: AddedPlayers
 func (s *Server) handleAddPlayersByCSVImport(rw http.ResponseWriter, req *http.Request) error {
 	log.Println("POST players from CSV")
 	players := ReadFromCSV()
@@ -129,7 +140,13 @@ func (s *Server) handleAddPlayersByCSVImport(rw http.ResponseWriter, req *http.R
 		}
 	}
 
-	return ToJSON(rw, http.StatusOK, players)
+	resMap := AddedPlayers{
+		addedMap: map[string]int {
+			"added": len(players),
+		},
+	}
+
+	return ToJSON(rw, http.StatusOK, resMap.addedMap)
 }
 
 // swagger:route GET /api/players/ getPlayers
@@ -139,6 +156,7 @@ func (s *Server) handleAddPlayersByCSVImport(rw http.ResponseWriter, req *http.R
 // ---
 // produces:
 // - application/json
+//
 // responses:
 //
 //	200: Player
@@ -243,11 +261,11 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 //     in: path
 //     required: true
 //     schema:
-//     	type: integer
+//     type: integer
 //
 // responses:
 //
-//	200: UpdatePlayerRequest
+//	200: UpdatedPlayer
 func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -285,7 +303,13 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 
 	log.Println("UPDATE player id:", id)
 
-	return ToJSON(rw, http.StatusOK, map[string]int{"updated": id})
+	resMap := UpdatedPlayer{
+		updatedMap: map[string]int {
+			"updated": id,
+		},
+	}
+
+	return ToJSON(rw, http.StatusOK, resMap.updatedMap)
 }
 
 // swagger:route DELETE /api/players/{id} deletePlayer
@@ -301,11 +325,11 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 //     in: path
 //     required: true
 //     schema:
-//     	type: integer
+//     type: integer
 //
 // responses:
 //
-//	200: Player
+//	200: DeletedPlayer
 func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -319,5 +343,10 @@ func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) e
 
 	log.Println("DELETE player id:", id)
 
-	return ToJSON(rw, http.StatusOK, map[string]int{"deleted": id})
+	resMap := DeletedPlayer{
+		deletedMap: map[string]int {
+			"deleted": id,
+		},
+	}
+	return ToJSON(rw, http.StatusOK, resMap.deletedMap)
 }
