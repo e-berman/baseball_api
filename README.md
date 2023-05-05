@@ -6,6 +6,8 @@ written in Golang and uses the standard [net/http](https://pkg.go.dev/net/http) 
 
 uses [pgx](https://github.com/jackc/pgx) as the Postgres driver/toolkit and two Docker containers for the api and database.
 
+OpenAPI specification available -> [HERE](https://app.swaggerhub.com/apis/ETHANJAMESBERMAN/baseball-api/0.0.1)
+
 ## Dependencies
 
 * Docker
