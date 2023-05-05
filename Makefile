@@ -11,6 +11,3 @@ db:
 
 get_path:
 	docker compose exec rest_api readlink -f stats.csv 
-
-swagger:
-	swagger generate spec -o ./swagger.yaml --scan-models
