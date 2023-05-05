@@ -230,7 +230,7 @@ type UpdatedPlayer struct {
 // swagger:model
 type AddedPlayers struct {
 	// Map of "added" key and number of players added value
-	// additionalProperties: integer
+	// example: [{"added": 35}]
 	addedMap map[string]int
 }
 
