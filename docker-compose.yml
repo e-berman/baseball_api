@@ -11,10 +11,7 @@ services:
       - .env
     ports:
       - 127.0.0.1:4242:4242
-    # volumes:
-    #   - .:/usr/src/baseball_api
-
-    # command: /build/baseball_api
+   
     environment:
       POSTGRES_URL: ${POSTGRES_URL}
     networks:
