@@ -61,7 +61,7 @@ func (s *Server) StartServer() {
 	}
 
 	sm.HandleFunc("/api/players/", toHandleFunc(s.handlePlayers))
-	sm.HandleFunc("/api/players/import/", toHandleFunc(s.handleCSVImport))
+	// sm.HandleFunc("/api/players/import/", toHandleFunc(s.handleCSVImport))
 
 	log.Println("Server started on port", server.Addr)
 
@@ -107,35 +107,6 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 	}
 
 	return fmt.Errorf("invalid method %s", req.Method)
-}
-
-func (s *Server) handleCSVImport(rw http.ResponseWriter, req *http.Request) error {
-	if req.URL.Path == "/api/players/import/" {
-		if req.Method == http.MethodPost {
-			return s.handleAddPlayersByCSVImport(rw, req)
-		}
-	}
-
-	return fmt.Errorf("invalid method %s", req.Method)
-}
-
-func (s *Server) handleAddPlayersByCSVImport(rw http.ResponseWriter, req *http.Request) error {
-	log.Println("POST players from CSV")
-	players := ReadFromCSV()
-	for _, player := range players {
-		err := s.db.AddPlayer(player)
-		if err != nil {
-			return err
-		}
-	}
-
-	resMap := AddedPlayers{
-		addedMap: map[string]int{
-			"added": len(players),
-		},
-	}
-
-	return ToJSON(rw, http.StatusOK, resMap.addedMap)
 }
 
 func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) error {
@@ -197,7 +168,6 @@ func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) erro
 	return ToJSON(rw, http.StatusOK, createPlayerReq)
 }
 
-
 func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
@@ -243,7 +213,6 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 
 	return ToJSON(rw, http.StatusOK, resMap.updatedMap)
 }
-
 
 func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
