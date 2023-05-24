@@ -154,6 +154,18 @@ func ReadFromCSV() []*Player {
 	return players
 }
 
+func (pool *DBPool) ImportDataFromCSV() error {
+	players := ReadFromCSV()
+	for _, player := range players {
+		err := pool.AddPlayer(player)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // GetPlayers will return a list of players
 //
 // retrieves all existing players in the position_players table
