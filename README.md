@@ -37,7 +37,6 @@ OpenAPI specification available -> [HERE](https://app.swaggerhub.com/apis/ETHANJ
 | GET | /api/players/ | retrieve all players |
 | GET | /api/players/:id | retrieve a single player |
 | POST | /api/players/ | add a new player |
-| POST | /api/players/import/ | import a list of players via csv |
 | PUT | /api/players/:id | edit field(s) of a single player |
 | DELETE | /api/players/:id | delete a single player |
 
