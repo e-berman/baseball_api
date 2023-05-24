@@ -226,14 +226,6 @@ type UpdatedPlayer struct {
 	updatedMap map[string]int
 }
 
-// AddedPlayers is the type used to return the number of players imported via .csv
-// swagger:model
-type AddedPlayers struct {
-	// Map of "added" key and number of players added value
-	// example: [{"added": 35}]
-	addedMap map[string]int
-}
-
 // DeletedPlayer is the type used to return the id of the player deleted upon success
 // swagger:model
 type DeletedPlayer struct {
