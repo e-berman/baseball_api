@@ -2,14 +2,6 @@ basePath: /
 consumes:
     - application/json
 definitions:
-    AddedPlayers:
-        description: AddedPlayers is the type used to return the number of players imported via .csv
-        type: object
-        additionalProperties:
-            type: integer
-        example:
-            added: 15
-        x-go-package: github.com/e-berman/baseball_api
     CreatePlayerRequest:
         description: CreatePlayerRequest is the type used to create a player
         properties:
@@ -456,17 +448,6 @@ paths:
                     schema:
                         $ref: '#/definitions/UpdatedPlayer'
             summary: Updates a Player given an id
-    /api/players/import/:
-        post:
-            operationId: addPlayersByCSV
-            produces:
-                - application/json
-            responses:
-                "200":
-                    description: Returns the number of players added
-                    schema:
-                        $ref: '#/definitions/AddedPlayers'
-            summary: Adds Player(s) to the database from an imported .csv
 produces:
     - application/json
 schemes:
