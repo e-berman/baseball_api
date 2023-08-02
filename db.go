@@ -13,11 +13,11 @@ import (
 
 // creates the DB type for handlers.go to utilize in the various routes
 type DB interface {
-	AddPlayer(*Player) error
+	AddPlayer(*PositionPlayer) error
 	DeletePlayer(int) error
-	UpdatePlayer(*Player) error
-	GetPlayers() ([]*Player, error)
-	GetPlayerByID(int) (*Player, error)
+	UpdatePlayer(*PositionPlayer) error
+	GetPlayers() ([]*PositionPlayer, error)
+	GetPlayerByID(int) (*PositionPlayer, error)
 }
 
 // Holds the pgxpool.Pool type for the initialization of the Postgres database via the pgx driver
@@ -111,7 +111,7 @@ func ConvertToFloat(record string) float64 {
 	return val
 }
 
-func ReadFromCSV() []*Player {
+func ReadFromCSV() []*PositionPlayer {
 	file, err := os.Open(Fp)
 	if err != nil {
 		log.Fatalf("Unable to open CSV file: %v\n", err)
@@ -124,14 +124,14 @@ func ReadFromCSV() []*Player {
 		log.Fatalf("Unable to read CSV file: %v\n", err)
 	}
 
-	var players []*Player
+	var players []*PositionPlayer
 
 	for i, record := range records {
 		if i == 0 {
 			continue
 		}
 
-		row := &Player{
+		row := &PositionPlayer{
 			Name:   record[0],
 			Team:   record[1],
 			Games:  ConvertToInt(record[2]),
@@ -169,7 +169,7 @@ func (pool *DBPool) ImportDataFromCSV() error {
 // GetPlayers will return a list of players
 //
 // retrieves all existing players in the position_players table
-func (pool *DBPool) GetPlayers() ([]*Player, error) {
+func (pool *DBPool) GetPlayers() ([]*PositionPlayer, error) {
 	query := `SELECT * FROM position_players`
 
 	rows, err := pool.db.Query(context.Background(), query)
@@ -177,9 +177,9 @@ func (pool *DBPool) GetPlayers() ([]*Player, error) {
 		return nil, err
 	}
 
-	players := []*Player{}
+	players := []*PositionPlayer{}
 	for rows.Next() {
-		player := &Player{}
+		player := &PositionPlayer{}
 		err := rows.Scan(
 			&player.ID,
 			&player.Name,
@@ -212,9 +212,9 @@ func (pool *DBPool) GetPlayers() ([]*Player, error) {
 // GetPlayerByID will return a player
 //
 // it will query the position_players table based on a given player id
-func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
+func (pool *DBPool) GetPlayerByID(id int) (*PositionPlayer, error) {
 	query := `SELECT * FROM position_players WHERE player_id = $1`
-	player := &Player{}
+	player := &PositionPlayer{}
 
 	err := pool.db.QueryRow(context.Background(), query, id).Scan(
 		&player.ID,
@@ -245,7 +245,7 @@ func (pool *DBPool) GetPlayerByID(id int) (*Player, error) {
 // AddPlayer will add a player to the position_players table
 //
 // will return nil if successful, error if unsuccessful
-func (pool *DBPool) AddPlayer(player *Player) error {
+func (pool *DBPool) AddPlayer(player *PositionPlayer) error {
 	query := `INSERT INTO position_players 
 	(name, team, games, pa, hr, runs, rbi, sb, bb_rate, k_rate, iso, average, obp, slg, woba)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
@@ -278,7 +278,7 @@ func (pool *DBPool) AddPlayer(player *Player) error {
 // UpdatePlayer will update a player in the position_players table given a player id
 //
 // if unsuccessful, will return an error
-func (pool *DBPool) UpdatePlayer(player *Player) error {
+func (pool *DBPool) UpdatePlayer(player *PositionPlayer) error {
 	query := `UPDATE position_players SET
 	name = $1,
 	team = $2,

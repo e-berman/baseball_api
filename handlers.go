@@ -91,7 +91,7 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 			return s.handleGetPlayers(rw, req)
 		}
 		if req.Method == http.MethodPost {
-			return s.handleAddPlayer(rw, req)
+			return s.handleAddPositionPlayer(rw, req)
 		}
 	} else {
 		if req.Method == http.MethodDelete {
@@ -102,7 +102,7 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 		}
 		if req.Method == http.MethodPut {
 
-			return s.handleUpdatePlayer(rw, req)
+			return s.handleUpdatePositionPlayer(rw, req)
 		}
 	}
 
@@ -135,40 +135,40 @@ func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) 
 	return ToJSON(rw, http.StatusOK, player)
 }
 
-func (s *Server) handleAddPlayer(rw http.ResponseWriter, req *http.Request) error {
-	createPlayerReq := CreatePlayerRequest{}
-	if err := json.NewDecoder(req.Body).Decode(&createPlayerReq); err != nil {
+func (s *Server) handleAddPositionPlayer(rw http.ResponseWriter, req *http.Request) error {
+	createPositionPlayerReq := CreatePositionPlayerRequest{}
+	if err := json.NewDecoder(req.Body).Decode(&createPositionPlayerReq); err != nil {
 		return err
 	}
 
-	log.Println("POST player:", createPlayerReq.Name)
+	log.Println("POST player:", createPositionPlayerReq.Name)
 
-	player := NewPlayer(
-		createPlayerReq.Name,
-		createPlayerReq.Team,
-		createPlayerReq.Games,
-		createPlayerReq.PA,
-		createPlayerReq.HR,
-		createPlayerReq.R,
-		createPlayerReq.RBI,
-		createPlayerReq.SB,
-		createPlayerReq.BbRate,
-		createPlayerReq.KRate,
-		createPlayerReq.ISO,
-		createPlayerReq.AVG,
-		createPlayerReq.OBP,
-		createPlayerReq.SLG,
-		createPlayerReq.WOBA,
+	player := NewPositionPlayer(
+		createPositionPlayerReq.Name,
+		createPositionPlayerReq.Team,
+		createPositionPlayerReq.Games,
+		createPositionPlayerReq.PA,
+		createPositionPlayerReq.HR,
+		createPositionPlayerReq.R,
+		createPositionPlayerReq.RBI,
+		createPositionPlayerReq.SB,
+		createPositionPlayerReq.BbRate,
+		createPositionPlayerReq.KRate,
+		createPositionPlayerReq.ISO,
+		createPositionPlayerReq.AVG,
+		createPositionPlayerReq.OBP,
+		createPositionPlayerReq.SLG,
+		createPositionPlayerReq.WOBA,
 	)
 
 	if err := s.db.AddPlayer(player); err != nil {
 		return err
 	}
 
-	return ToJSON(rw, http.StatusOK, createPlayerReq)
+	return ToJSON(rw, http.StatusOK, createPositionPlayerReq)
 }
 
-func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) error {
+func (s *Server) handleUpdatePositionPlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
 		return err
@@ -178,26 +178,26 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 		return err
 	}
 
-	updatePlayerReq := UpdatePlayerRequest{}
-	if err := json.NewDecoder(req.Body).Decode(&updatePlayerReq); err != nil {
+	updatePositionPlayerReq := UpdatePositionPlayerRequest{}
+	if err := json.NewDecoder(req.Body).Decode(&updatePositionPlayerReq); err != nil {
 		return err
 	}
 
-	player.Name = updatePlayerReq.Name
-	player.Team = updatePlayerReq.Team
-	player.Games = updatePlayerReq.Games
-	player.PA = updatePlayerReq.PA
-	player.HR = updatePlayerReq.HR
-	player.R = updatePlayerReq.R
-	player.RBI = updatePlayerReq.RBI
-	player.SB = updatePlayerReq.SB
-	player.BbRate = updatePlayerReq.BbRate
-	player.KRate = updatePlayerReq.KRate
-	player.ISO = updatePlayerReq.ISO
-	player.AVG = updatePlayerReq.AVG
-	player.OBP = updatePlayerReq.OBP
-	player.SLG = updatePlayerReq.SLG
-	player.WOBA = updatePlayerReq.WOBA
+	player.Name = updatePositionPlayerReq.Name
+	player.Team = updatePositionPlayerReq.Team
+	player.Games = updatePositionPlayerReq.Games
+	player.PA = updatePositionPlayerReq.PA
+	player.HR = updatePositionPlayerReq.HR
+	player.R = updatePositionPlayerReq.R
+	player.RBI = updatePositionPlayerReq.RBI
+	player.SB = updatePositionPlayerReq.SB
+	player.BbRate = updatePositionPlayerReq.BbRate
+	player.KRate = updatePositionPlayerReq.KRate
+	player.ISO = updatePositionPlayerReq.ISO
+	player.AVG = updatePositionPlayerReq.AVG
+	player.OBP = updatePositionPlayerReq.OBP
+	player.SLG = updatePositionPlayerReq.SLG
+	player.WOBA = updatePositionPlayerReq.WOBA
 
 	if err := s.db.UpdatePlayer(player); err != nil {
 		return err
@@ -205,7 +205,7 @@ func (s *Server) handleUpdatePlayer(rw http.ResponseWriter, req *http.Request) e
 
 	log.Println("UPDATE player id:", id)
 
-	resMap := UpdatedPlayer{
+	resMap := UpdatedPositionPlayer{
 		updatedMap: map[string]int{
 			"updated": id,
 		},
@@ -227,7 +227,7 @@ func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) e
 
 	log.Println("DELETE player id:", id)
 
-	resMap := DeletedPlayer{
+	resMap := DeletedPositionPlayer{
 		deletedMap: map[string]int{
 			"deleted": id,
 		},

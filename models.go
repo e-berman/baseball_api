@@ -2,7 +2,7 @@ package main
 
 // Player is the type used to represent a player
 // swagger:model
-type Player struct {
+type PositionPlayer struct {
 	// Player id (auto incremented by database)
 	ID     int     `json:"id"`
 	Name   string  `json:"name"`
@@ -24,7 +24,7 @@ type Player struct {
 
 // CreatePlayerRequest is the type used to create a player
 // swagger:model
-type CreatePlayerRequest struct {
+type CreatePositionPlayerRequest struct {
 	Name   string  `json:"name"`
 	Team   string  `json:"team"`
 	Games  int     `json:"games"`
@@ -44,7 +44,7 @@ type CreatePlayerRequest struct {
 
 // UpdatePlayerRequest is the type used to update a player
 // swagger:model
-type UpdatePlayerRequest struct {
+type UpdatePositionPlayerRequest struct {
 	Name   string  `json:"name"`
 	Team   string  `json:"team"`
 	Games  int     `json:"games"`
@@ -64,18 +64,18 @@ type UpdatePlayerRequest struct {
 
 // UpdatedPlayer is the type used to return the id of the player updated upon success
 // swagger:model
-type UpdatedPlayer struct {
+type UpdatedPositionPlayer struct {
 	updatedMap map[string]int
 }
 
 // DeletedPlayer is the type used to return the id of the player deleted upon success
 // swagger:model
-type DeletedPlayer struct {
+type DeletedPositionPlayer struct {
 	deletedMap map[string]int
 }
 
-func NewPlayer(name, team string, games, pa, hr, r, rbi, sb int, bbRate, kRate, iso, avg, obp, slg, woba float64) *Player {
-	return &Player{
+func NewPositionPlayer(name, team string, games, pa, hr, r, rbi, sb int, bbRate, kRate, iso, avg, obp, slg, woba float64) *PositionPlayer {
+	return &PositionPlayer{
 		Name:   name,
 		Team:   team,
 		Games:  games,
