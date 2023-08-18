@@ -152,13 +152,18 @@ func (s *Server) handleAddPositionPlayer(rw http.ResponseWriter, req *http.Reque
 		createPositionPlayerReq.R,
 		createPositionPlayerReq.RBI,
 		createPositionPlayerReq.SB,
+		createPositionPlayerReq.WRCPlus,
 		createPositionPlayerReq.BbRate,
 		createPositionPlayerReq.KRate,
 		createPositionPlayerReq.ISO,
+		createPositionPlayerReq.BABIP,
 		createPositionPlayerReq.AVG,
 		createPositionPlayerReq.OBP,
 		createPositionPlayerReq.SLG,
 		createPositionPlayerReq.WOBA,
+		createPositionPlayerReq.XWOBA,
+		createPositionPlayerReq.BsR,
+		createPositionPlayerReq.WAR,
 	)
 
 	if err := s.db.AddPlayer(player); err != nil {
@@ -191,13 +196,18 @@ func (s *Server) handleUpdatePositionPlayer(rw http.ResponseWriter, req *http.Re
 	player.R = updatePositionPlayerReq.R
 	player.RBI = updatePositionPlayerReq.RBI
 	player.SB = updatePositionPlayerReq.SB
+	player.WRCPlus = updatePositionPlayerReq.WRCPlus
 	player.BbRate = updatePositionPlayerReq.BbRate
 	player.KRate = updatePositionPlayerReq.KRate
 	player.ISO = updatePositionPlayerReq.ISO
+	player.BABIP = updatePositionPlayerReq.BABIP
 	player.AVG = updatePositionPlayerReq.AVG
 	player.OBP = updatePositionPlayerReq.OBP
 	player.SLG = updatePositionPlayerReq.SLG
 	player.WOBA = updatePositionPlayerReq.WOBA
+	player.XWOBA = updatePositionPlayerReq.XWOBA
+	player.BsR = updatePositionPlayerReq.BsR
+	player.WAR = updatePositionPlayerReq.WAR
 
 	if err := s.db.UpdatePlayer(player); err != nil {
 		return err

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"math"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
@@ -54,21 +55,26 @@ func (pool *DBPool) InitializePlayerTable() error {
 func (pool *DBPool) CreatePlayerTable() error {
 	query := `create table if not exists position_players (
 		player_id serial primary key NOT NULL,
-		name varchar(50) NOT NULL,
-		team varchar(3),
+		name text NOT NULL,
+		team text,
 		games int CHECK (games >= 0),
 		pa int CHECK (pa >= 0),
 		hr int CHECK (hr >= 0),
 		runs int CHECK (runs >= 0),
 		rbi int CHECK (rbi >= 0),
 		sb int CHECK (sb >= 0),
-		bb_rate float(3) CHECK (bb_rate >= 0),
-		k_rate float(3) CHECK (k_rate >= 0),
-		iso float(3) CHECK (iso >= 0),
-		average float(3) CHECK (average >= 0),
-		obp float(3) CHECK (obp >= 0),
-		slg float(3) CHECK (slg >= 0),
-		woba float(3) CHECK (woba >= 0),
+		wrc_plus int CHECK (wrc_plus >= 0),
+		bb_rate float8 CHECK (bb_rate >= 0),
+		k_rate float8 CHECK (k_rate >= 0),
+		iso float8 CHECK (iso >= 0),
+	        babip float8 CHECK (babip >= 0),
+		average float8 CHECK (average >= 0),
+		obp float8 CHECK (obp >= 0),
+		slg float8 CHECK (slg >= 0),
+		woba float8 CHECK (woba >= 0),
+		x_woba float8 CHECK (x_woba >= 0),
+		bsr float8,
+		war float8,
 		unique (name, team))`
 
 	_, err := pool.db.Exec(context.Background(), query)
@@ -93,6 +99,12 @@ func (pool *DBPool) ClearPlayerTable() error {
 	return nil
 }
 
+func ConvertFloatToInt(record string) int {
+	val := ConvertToFloat(record)
+
+	return int(val)
+}
+
 func ConvertToInt(record string) int {
 	val, err := strconv.Atoi(record)
 	if err != nil {
@@ -109,6 +121,13 @@ func ConvertToFloat(record string) float64 {
 	}
 
 	return val
+}
+
+// round function borrowed from:
+// https://gosamples.dev/round-float/
+func roundFloat(val float64, precision uint) float64 {
+	ratio := math.Pow(10, float64(precision))
+	return math.Round(val*ratio) / ratio
 }
 
 func ReadFromCSV() []*PositionPlayer {
@@ -131,22 +150,30 @@ func ReadFromCSV() []*PositionPlayer {
 			continue
 		}
 
+		adjusted_bb_rate := ConvertToFloat(record[9]) * 100
+		adjusted_k_rate := ConvertToFloat(record[10])* 100
+
 		row := &PositionPlayer{
-			Name:   record[0],
-			Team:   record[1],
-			Games:  ConvertToInt(record[2]),
-			PA:     ConvertToInt(record[3]),
-			HR:     ConvertToInt(record[4]),
-			R:      ConvertToInt(record[5]),
-			RBI:    ConvertToInt(record[6]),
-			SB:     ConvertToInt(record[7]),
-			BbRate: ConvertToFloat(record[8]),
-			KRate:  ConvertToFloat(record[9]),
-			ISO:    ConvertToFloat(record[10]),
-			AVG:    ConvertToFloat(record[11]),
-			OBP:    ConvertToFloat(record[12]),
-			SLG:    ConvertToFloat(record[13]),
-			WOBA:   ConvertToFloat(record[14]),
+			Name:		record[0],
+			Team:		record[1],
+			Games:		ConvertToInt(record[2]),
+			PA:		ConvertToInt(record[3]),
+			HR:		ConvertToInt(record[4]),
+			R:		ConvertToInt(record[5]),
+			RBI:		ConvertToInt(record[6]),
+			SB:		ConvertToInt(record[7]),
+			WRCPlus:	ConvertFloatToInt(record[8]),
+			BbRate:		roundFloat(adjusted_bb_rate, 1),
+			KRate:		roundFloat(adjusted_k_rate, 1),
+			ISO:		roundFloat(ConvertToFloat(record[11]), 3),
+			BABIP:		roundFloat(ConvertToFloat(record[12]), 3),
+			AVG:		roundFloat(ConvertToFloat(record[13]), 3),
+			OBP:		roundFloat(ConvertToFloat(record[14]), 3),
+			SLG:		roundFloat(ConvertToFloat(record[15]), 3),
+			WOBA:		roundFloat(ConvertToFloat(record[16]), 3),
+			XWOBA:		roundFloat(ConvertToFloat(record[17]), 3),
+			BsR:		roundFloat(ConvertToFloat(record[18]), 1),
+			WAR:		roundFloat(ConvertToFloat(record[19]), 1),
 		}
 		players = append(players, row)
 	}
@@ -190,13 +217,18 @@ func (pool *DBPool) GetPlayers() ([]*PositionPlayer, error) {
 			&player.R,
 			&player.RBI,
 			&player.SB,
+			&player.WRCPlus,
 			&player.BbRate,
 			&player.KRate,
 			&player.ISO,
+			&player.BABIP,
 			&player.AVG,
 			&player.OBP,
 			&player.SLG,
 			&player.WOBA,
+			&player.XWOBA,
+			&player.BsR,
+			&player.WAR,
 		)
 
 		if err != nil {
@@ -226,13 +258,18 @@ func (pool *DBPool) GetPlayerByID(id int) (*PositionPlayer, error) {
 		&player.R,
 		&player.RBI,
 		&player.SB,
+		&player.WRCPlus,
 		&player.BbRate,
 		&player.KRate,
 		&player.ISO,
+		&player.BABIP,
 		&player.AVG,
 		&player.OBP,
 		&player.SLG,
 		&player.WOBA,
+		&player.XWOBA,
+		&player.BsR,
+		&player.WAR,
 	)
 	if err != nil {
 		log.Println(err)
@@ -247,8 +284,8 @@ func (pool *DBPool) GetPlayerByID(id int) (*PositionPlayer, error) {
 // will return nil if successful, error if unsuccessful
 func (pool *DBPool) AddPlayer(player *PositionPlayer) error {
 	query := `INSERT INTO position_players 
-	(name, team, games, pa, hr, runs, rbi, sb, bb_rate, k_rate, iso, average, obp, slg, woba)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+	(name, team, games, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, x_woba, bsr, war)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
 	ON CONFLICT (name, team) DO NOTHING`
 
 	_, err := pool.db.Exec(context.Background(), query,
@@ -260,13 +297,18 @@ func (pool *DBPool) AddPlayer(player *PositionPlayer) error {
 		&player.R,
 		&player.RBI,
 		&player.SB,
+		&player.WRCPlus,
 		&player.BbRate,
 		&player.KRate,
 		&player.ISO,
+		&player.BABIP,
 		&player.AVG,
 		&player.OBP,
 		&player.SLG,
 		&player.WOBA,
+		&player.XWOBA,
+		&player.BsR,
+		&player.WAR,
 	)
 	if err != nil {
 		return err
@@ -288,14 +330,19 @@ func (pool *DBPool) UpdatePlayer(player *PositionPlayer) error {
 	runs = $6,
 	rbi = $7,
 	sb = $8,
-	bb_rate = $9,
-	k_rate = $10,
-	iso = $11,
-	average = $12,
-	obp = $13,
-	slg = $14,
-	woba = $15,
-	WHERE player_id = $16`
+	wrc_plus = $9,
+	bb_rate = $10,
+	k_rate = $11,
+	iso = $12,
+	babip = $13,
+	average = $13,
+	obp = $14,
+	slg = $15,
+	woba = $16,
+	x_woba = $17,
+	bsr = $18,
+	war = $19,
+	WHERE player_id = $20`
 
 	res, err := pool.db.Exec(context.Background(), query,
 		&player.Name,
@@ -306,13 +353,18 @@ func (pool *DBPool) UpdatePlayer(player *PositionPlayer) error {
 		&player.R,
 		&player.RBI,
 		&player.SB,
+		&player.WRCPlus,
 		&player.BbRate,
 		&player.KRate,
 		&player.ISO,
+		&player.BABIP,
 		&player.AVG,
 		&player.OBP,
 		&player.SLG,
 		&player.WOBA,
+		&player.XWOBA,
+		&player.BsR,
+		&player.WAR,
 		&player.ID,
 	)
 	if err != nil {

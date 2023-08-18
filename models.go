@@ -17,12 +17,13 @@ type PositionPlayer struct {
 	BbRate		float64 `json:"walkRate"`
 	KRate		float64 `json:"strikeoutRate"`
 	ISO		float64 `json:"isolatedPower"`
+	BABIP		float64 `json:"battingAvgBallsInPlay"`
 	AVG		float64 `json:"battingAvg"`
 	OBP		float64 `json:"onBasePct"`
 	SLG		float64 `json:"sluggingPct"`
 	WOBA		float64 `json:"weightedOnBaseAvg"`
 	XWOBA		float64 `json:"expWeightedOnBaseAvg"`
-	BaseRunning	float64 `json:"baseRunning"`
+	BsR		float64 `json:"baseRunning"`
 	WAR		float64 `json:"winsAboveReplacement"`
 
 }
@@ -42,12 +43,13 @@ type CreatePositionPlayerRequest struct {
 	BbRate		float64 `json:"walkRate"`
 	KRate		float64 `json:"strikeoutRate"`
 	ISO		float64 `json:"isolatedPower"`
+	BABIP		float64 `json:"battingAvgBallsInPlay"`
 	AVG		float64 `json:"battingAvg"`
 	OBP		float64 `json:"onBasePct"`
 	SLG		float64 `json:"sluggingPct"`
 	WOBA		float64 `json:"weightedOnBaseAvg"`
 	XWOBA		float64 `json:"expWeightedOnBaseAvg"`
-	BaseRunning	float64 `json:"baseRunning"`
+	BsR		float64 `json:"baseRunning"`
 	WAR		float64 `json:"winsAboveReplacement"`
 }
 
@@ -66,12 +68,13 @@ type UpdatePositionPlayerRequest struct {
 	BbRate		float64 `json:"walkRate"`
 	KRate		float64 `json:"strikeoutRate"`
 	ISO		float64 `json:"isolatedPower"`
+	BABIP		float64 `json:"battingAvgBallsInPlay"`
 	AVG		float64 `json:"battingAvg"`
 	OBP		float64 `json:"onBasePct"`
 	SLG		float64 `json:"sluggingPct"`
 	WOBA		float64 `json:"weightedOnBaseAvg"`
 	XWOBA		float64 `json:"expWeightedOnBaseAvg"`
-	BaseRunning	float64 `json:"baseRunning"`
+	BsR		float64 `json:"baseRunning"`
 	WAR		float64 `json:"winsAboveReplacement"`
 }
 
@@ -87,7 +90,7 @@ type DeletedPositionPlayer struct {
 	deletedMap map[string]int
 }
 
-func NewPositionPlayer(name, team string, games, pa, hr, r, rbi, sb, wrcPlus int, bbRate, kRate, iso, avg, obp, slg, woba, xWoba, bsr, war float64) *PositionPlayer {
+func NewPositionPlayer(name, team string, games, pa, hr, r, rbi, sb, wrcPlus int, bbRate, kRate, iso, babip, avg, obp, slg, woba, xWoba, bsr, war float64) *PositionPlayer {
 	return &PositionPlayer{
 		Name:		name,
 		Team:		team,
@@ -101,12 +104,13 @@ func NewPositionPlayer(name, team string, games, pa, hr, r, rbi, sb, wrcPlus int
 		BbRate:		bbRate,
 		KRate:		kRate,
 		ISO:		iso,
+		BABIP:		babip,
 		AVG:		avg,
 		OBP:		obp,
 		SLG:		slg,
 		WOBA:		woba,
 		XWOBA:		xWoba,
-		BaseRunning:	bsr,
+		BsR:		bsr,
 		WAR:		war,
 	}
 }
