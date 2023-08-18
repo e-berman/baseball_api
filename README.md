@@ -62,3 +62,14 @@ Example JSON Payload:
     "sluggingPct": 0.459,
     "weightedOnBaseAvg": 0.370,
 }
+```
+
+## To Do 
+
+- [ ] add pitchers db table and api endpoints
+- [ ] add teams db table and api endpoints
+- [ ] improve unit testing (mock or no mock?)
+- [ ] add daily csv import from reliable baseball statistics source (fangraphs or baseball savant?)
+- [ ] build out front-end for documentation and api usage
+
+
