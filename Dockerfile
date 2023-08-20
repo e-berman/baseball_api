@@ -8,7 +8,7 @@ COPY go.sum ./
 RUN go mod download
 
 COPY .env ./
-COPY stats.csv ./
+COPY *.csv ./
 COPY *.go ./
 
 RUN go build -o main
