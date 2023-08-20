@@ -61,7 +61,6 @@ func (s *Server) StartServer() {
 	}
 
 	sm.HandleFunc("/api/players/", toHandleFunc(s.handlePlayers))
-	// sm.HandleFunc("/api/players/import/", toHandleFunc(s.handleCSVImport))
 
 	log.Println("Server started on port", server.Addr)
 
@@ -86,32 +85,54 @@ func (s *Server) getIDFromPath(req *http.Request) (int, error) {
 //
 // conditionally separated based on whether a player id exists in the url or not
 func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error {
-	if req.URL.Path == "/api/players/" {
+	if req.URL.Path == "/api/position_players/" {
 		if req.Method == http.MethodGet {
-			return s.handleGetPlayers(rw, req)
+			return s.handleGetPositionPlayers(rw, req)
 		}
 		if req.Method == http.MethodPost {
 			return s.handleAddPositionPlayer(rw, req)
 		}
 	} else {
 		if req.Method == http.MethodDelete {
-			return s.handleDeletePlayer(rw, req)
+			return s.handleDeletePositionPlayer(rw, req)
 		}
 		if req.Method == http.MethodGet {
-			return s.handleGetPlayerByID(rw, req)
+			return s.handleGetPositionPlayerByID(rw, req)
 		}
 		if req.Method == http.MethodPut {
 
 			return s.handleUpdatePositionPlayer(rw, req)
 		}
 	}
+	
+	if req.URL.Path == "/api/pitchers/" {
+		if req.Method == http.MethodGet {
+			return s.handleGetPitchers(rw, req)
+		}
+		if req.Method == http.MethodPost {
+			return s.handleAddPitcher(rw, req)
+		}
+	} else {
+		if req.Method == http.MethodDelete {
+			return s.handleDeletePitcher(rw, req)
+		}
+		if req.Method == http.MethodGet {
+			return s.handleGetPitcherByID(rw, req)
+		}
+		if req.Method == http.MethodPut {
+
+			return s.handleUpdatePitcher(rw, req)
+		}
+	}
+
+
 
 	return fmt.Errorf("invalid method %s", req.Method)
 }
 
-func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) error {
-	log.Println("GET all players")
-	players, err := s.db.GetPlayers()
+func (s *Server) handleGetPositionPlayers(rw http.ResponseWriter, req *http.Request) error {
+	log.Println("GET all position players")
+	players, err := s.db.GetPositionPlayers()
 	if err != nil {
 		return err
 	}
@@ -119,13 +140,13 @@ func (s *Server) handleGetPlayers(rw http.ResponseWriter, req *http.Request) err
 	return ToJSON(rw, http.StatusOK, players)
 }
 
-func (s *Server) handleGetPlayerByID(rw http.ResponseWriter, req *http.Request) error {
+func (s *Server) handleGetPositionPlayerByID(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
 		return err
 	}
 
-	player, err := s.db.GetPlayerByID(id)
+	player, err := s.db.GetPositionPlayerByID(id)
 	if err != nil {
 		return err
 	}
@@ -146,7 +167,7 @@ func (s *Server) handleAddPositionPlayer(rw http.ResponseWriter, req *http.Reque
 	player := NewPositionPlayer(
 		createPositionPlayerReq.Name,
 		createPositionPlayerReq.Team,
-		createPositionPlayerReq.Games,
+		createPositionPlayerReq.G,
 		createPositionPlayerReq.PA,
 		createPositionPlayerReq.HR,
 		createPositionPlayerReq.R,
@@ -166,7 +187,7 @@ func (s *Server) handleAddPositionPlayer(rw http.ResponseWriter, req *http.Reque
 		createPositionPlayerReq.WAR,
 	)
 
-	if err := s.db.AddPlayer(player); err != nil {
+	if err := s.db.AddPositionPlayer(player); err != nil {
 		return err
 	}
 
@@ -178,7 +199,7 @@ func (s *Server) handleUpdatePositionPlayer(rw http.ResponseWriter, req *http.Re
 	if err != nil {
 		return err
 	}
-	player, err := s.db.GetPlayerByID(id)
+	player, err := s.db.GetPositionPlayerByID(id)
 	if err != nil {
 		return err
 	}
@@ -190,7 +211,7 @@ func (s *Server) handleUpdatePositionPlayer(rw http.ResponseWriter, req *http.Re
 
 	player.Name = updatePositionPlayerReq.Name
 	player.Team = updatePositionPlayerReq.Team
-	player.Games = updatePositionPlayerReq.Games
+	player.G = updatePositionPlayerReq.G
 	player.PA = updatePositionPlayerReq.PA
 	player.HR = updatePositionPlayerReq.HR
 	player.R = updatePositionPlayerReq.R
@@ -209,7 +230,7 @@ func (s *Server) handleUpdatePositionPlayer(rw http.ResponseWriter, req *http.Re
 	player.BsR = updatePositionPlayerReq.BsR
 	player.WAR = updatePositionPlayerReq.WAR
 
-	if err := s.db.UpdatePlayer(player); err != nil {
+	if err := s.db.UpdatePositionPlayer(player); err != nil {
 		return err
 	}
 
@@ -224,13 +245,13 @@ func (s *Server) handleUpdatePositionPlayer(rw http.ResponseWriter, req *http.Re
 	return ToJSON(rw, http.StatusOK, resMap.updatedMap)
 }
 
-func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) error {
+func (s *Server) handleDeletePositionPlayer(rw http.ResponseWriter, req *http.Request) error {
 	id, err := s.getIDFromPath(req)
 	if err != nil {
 		return err
 	}
 
-	err = s.db.DeletePlayer(id)
+	err = s.db.DeletePositionPlayer(id)
 	if err != nil {
 		return err
 	}
@@ -238,6 +259,144 @@ func (s *Server) handleDeletePlayer(rw http.ResponseWriter, req *http.Request) e
 	log.Println("DELETE player id:", id)
 
 	resMap := DeletedPositionPlayer{
+		deletedMap: map[string]int{
+			"deleted": id,
+		},
+	}
+	return ToJSON(rw, http.StatusOK, resMap.deletedMap)
+}
+
+func (s *Server) handleGetPitchers(rw http.ResponseWriter, req *http.Request) error {
+	log.Println("GET all pitchers")
+	players, err := s.db.GetPitchers()
+	if err != nil {
+		return err
+	}
+
+	return ToJSON(rw, http.StatusOK, players)
+}
+
+func (s *Server) handleGetPitcherByID(rw http.ResponseWriter, req *http.Request) error {
+	id, err := s.getIDFromPath(req)
+	if err != nil {
+		return err
+	}
+
+	player, err := s.db.GetPitcherByID(id)
+	if err != nil {
+		return err
+	}
+
+	log.Println("GET pitcher:", player.Name)
+
+	return ToJSON(rw, http.StatusOK, player)
+}
+
+func (s *Server) handleAddPitcher(rw http.ResponseWriter, req *http.Request) error {
+	createPitcherReq := CreatePitcherRequest{}
+	if err := json.NewDecoder(req.Body).Decode(&createPitcherReq); err != nil {
+		return err
+	}
+
+	log.Println("POST pitcher:", createPitcherReq.Name)
+
+	player := NewPitcher(
+		createPitcherReq.Name,
+		createPitcherReq.Team,
+		createPitcherReq.W,
+		createPitcherReq.L,
+		createPitcherReq.SV,
+		createPitcherReq.G,
+		createPitcherReq.GS,
+		createPitcherReq.IP,
+		createPitcherReq.K9,
+		createPitcherReq.BB9,
+		createPitcherReq.HR9,
+		createPitcherReq.BABIP,
+		createPitcherReq.LOB,
+		createPitcherReq.GB,
+		createPitcherReq.HRFB,
+		createPitcherReq.VFA,
+		createPitcherReq.ERA,
+		createPitcherReq.XERA,
+		createPitcherReq.FIP,
+		createPitcherReq.XFIP,
+		createPitcherReq.WAR,
+	)
+
+	if err := s.db.AddPitcher(player); err != nil {
+		return err
+	}
+
+	return ToJSON(rw, http.StatusOK, createPitcherReq)
+}
+
+func (s *Server) handleUpdatePitcher(rw http.ResponseWriter, req *http.Request) error {
+	id, err := s.getIDFromPath(req)
+	if err != nil {
+		return err
+	}
+	player, err := s.db.GetPitcherByID(id)
+	if err != nil {
+		return err
+	}
+
+	updatePitcherReq := UpdatePitcherRequest{}
+	if err := json.NewDecoder(req.Body).Decode(&updatePitcherReq); err != nil {
+		return err
+	}
+
+	player.Name = updatePitcherReq.Name
+	player.Team = updatePitcherReq.Team
+	player.W = updatePitcherReq.W
+	player.L = updatePitcherReq.L
+	player.SV = updatePitcherReq.SV
+	player.G = updatePitcherReq.G
+	player.GS = updatePitcherReq.GS
+	player.IP = updatePitcherReq.IP
+	player.K9 = updatePitcherReq.K9
+	player.BB9 = updatePitcherReq.BB9
+	player.HR9 = updatePitcherReq.HR9
+	player.BABIP = updatePitcherReq.BABIP
+	player.LOB = updatePitcherReq.LOB
+	player.GB = updatePitcherReq.GB
+	player.HRFB = updatePitcherReq.HRFB
+	player.VFA = updatePitcherReq.VFA
+	player.ERA = updatePitcherReq.ERA
+	player.XERA = updatePitcherReq.XERA
+	player.FIP = updatePitcherReq.FIP
+	player.XFIP = updatePitcherReq.XFIP
+	player.WAR = updatePitcherReq.WAR
+
+	if err := s.db.UpdatePitcher(player); err != nil {
+		return err
+	}
+
+	log.Println("UPDATE pitcher id:", id)
+
+	resMap := UpdatedPitcher{
+		updatedMap: map[string]int{
+			"updated": id,
+		},
+	}
+
+	return ToJSON(rw, http.StatusOK, resMap.updatedMap)
+}
+
+func (s *Server) handleDeletePitcher(rw http.ResponseWriter, req *http.Request) error {
+	id, err := s.getIDFromPath(req)
+	if err != nil {
+		return err
+	}
+
+	err = s.db.DeletePitcher(id)
+	if err != nil {
+		return err
+	}
+
+	log.Println("DELETE pitcher id:", id)
+
+	resMap := DeletedPitcher{
 		deletedMap: map[string]int{
 			"deleted": id,
 		},

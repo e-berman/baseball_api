@@ -14,11 +14,16 @@ import (
 
 // creates the DB type for handlers.go to utilize in the various routes
 type DB interface {
-	AddPlayer(*PositionPlayer) error
-	DeletePlayer(int) error
-	UpdatePlayer(*PositionPlayer) error
-	GetPlayers() ([]*PositionPlayer, error)
-	GetPlayerByID(int) (*PositionPlayer, error)
+	AddPositionPlayer(*PositionPlayer) error
+	DeletePositionPlayer(int) error
+	UpdatePositionPlayer(*PositionPlayer) error
+	GetPositionPlayers() ([]*PositionPlayer, error)
+	GetPositionPlayerByID(int) (*PositionPlayer, error)
+	AddPitcher(*Pitcher) error
+	DeletePitcher(int) error
+	UpdatePitcher(*Pitcher) error
+	GetPitchers() ([]*Pitcher, error)
+	GetPitcherByID(int) (*Pitcher, error)
 }
 
 // Holds the pgxpool.Pool type for the initialization of the Postgres database via the pgx driver
@@ -47,17 +52,21 @@ func NewDBPool() (*DBPool, error) {
 }
 
 // InitializePlayerTable will create the position_players postgres table upon initialization
-func (pool *DBPool) InitializePlayerTable() error {
-	return pool.CreatePlayerTable()
+func (pool *DBPool) InitializePositionPlayerTable() error {
+	return pool.CreatePositionPlayerTable()
+}
+
+func (pool *DBPool) InitializePitcherTable() error {
+	return pool.CreatePitcherTable()
 }
 
 // CreatePlayerTable executes the query to create the position_player table with pgx
-func (pool *DBPool) CreatePlayerTable() error {
+func (pool *DBPool) CreatePositionPlayerTable() error {
 	query := `create table if not exists position_players (
 		player_id serial primary key NOT NULL,
 		name text NOT NULL,
 		team text,
-		games int CHECK (games >= 0),
+		g int CHECK (g >= 0),
 		pa int CHECK (pa >= 0),
 		hr int CHECK (hr >= 0),
 		runs int CHECK (runs >= 0),
@@ -74,6 +83,37 @@ func (pool *DBPool) CreatePlayerTable() error {
 		woba float8 CHECK (woba >= 0),
 		x_woba float8 CHECK (x_woba >= 0),
 		bsr float8,
+		war float8,
+		unique (name, team))`
+
+	_, err := pool.db.Exec(context.Background(), query)
+
+	return err
+}
+
+func (pool *DBPool) CreatePitcherTable() error {
+	query := `CREATE table IF NOT EXISTS pitchers (
+		player_id serial primary key NOT NULL,
+		name text NOT NULL,
+		team text,
+		w int CHECK (w >= 0),
+		l int CHECK (l >= 0),
+	        sv int CHECK (sv >= 0),
+		g int CHECK (g >= 0),
+		gs int CHECK (gs >= 0),
+		ip float8 CHECK (ip >= 0),
+		k9 float8 CHECK (k9 >= 0),
+		bb9 float8 CHECK (bb9 >= 0),
+		hr9 float8 CHECK (hr9 >= 0),
+		babip float8 CHECK (babip >= 0),
+		lob float8 CHECK (lob >= 0),
+		gb float8 CHECK (gb >= 0),
+		hrfb float8 CHECK (hrfb >= 0),
+		vfa float8 CHECK (vfa >= 0),
+		era float8 CHECK (era >= 0),
+		xera float8 CHECK (xera >= 0),
+		fip float8 CHECK (fip >= 0),
+		xfip float8 CHECK (xfip >= 0),
 		war float8,
 		unique (name, team))`
 
@@ -123,14 +163,14 @@ func ConvertToFloat(record string) float64 {
 	return val
 }
 
-// round function borrowed from:
+// round function used from:
 // https://gosamples.dev/round-float/
 func roundFloat(val float64, precision uint) float64 {
 	ratio := math.Pow(10, float64(precision))
 	return math.Round(val*ratio) / ratio
 }
 
-func ReadFromCSV() []*PositionPlayer {
+func ReadFromCSVPositionPlayer() []*PositionPlayer {
 	file, err := os.Open(Fp)
 	if err != nil {
 		log.Fatalf("Unable to open CSV file: %v\n", err)
@@ -156,7 +196,7 @@ func ReadFromCSV() []*PositionPlayer {
 		row := &PositionPlayer{
 			Name:		record[0],
 			Team:		record[1],
-			Games:		ConvertToInt(record[2]),
+			G:		ConvertToInt(record[2]),
 			PA:		ConvertToInt(record[3]),
 			HR:		ConvertToInt(record[4]),
 			R:		ConvertToInt(record[5]),
@@ -181,10 +221,75 @@ func ReadFromCSV() []*PositionPlayer {
 	return players
 }
 
-func (pool *DBPool) ImportDataFromCSV() error {
-	players := ReadFromCSV()
+func ReadFromCSVPitcher() []*Pitcher {
+	file, err := os.Open(Fp)
+	if err != nil {
+		log.Fatalf("Unable to open CSV file: %v\n", err)
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		log.Fatalf("Unable to read CSV file: %v\n", err)
+	}
+
+	var players []*Pitcher
+
+	for i, record := range records {
+		if i == 0 {
+			continue
+		}
+
+		adjusted_lob := ConvertToFloat(record[12]) * 100
+		adjusted_gb_rate := ConvertToFloat(record[13]) * 100
+		adjusted_hrfb_rate := ConvertToFloat(record[14]) * 100
+
+		row := &Pitcher{
+			Name:		record[0],
+			Team:		record[1],
+			W:		ConvertToInt(record[2]),
+			L:		ConvertToInt(record[3]),
+			SV:		ConvertToInt(record[4]),
+			G:		ConvertToInt(record[5]),
+			GS:		ConvertToInt(record[6]),
+			IP:		ConvertToFloat(record[7]),
+			K9:		roundFloat(ConvertToFloat(record[8]), 2),
+			BB9:		roundFloat(ConvertToFloat(record[9]), 2),
+			HR9:		roundFloat(ConvertToFloat(record[10]), 2),
+			BABIP:		roundFloat(ConvertToFloat(record[11]), 3),
+			LOB:		roundFloat(adjusted_lob, 1),
+			GB:		roundFloat(adjusted_gb_rate, 1),
+			HRFB:		roundFloat(adjusted_hrfb_rate, 1),
+			VFA:		roundFloat(ConvertToFloat(record[15]), 1),
+			ERA:		roundFloat(ConvertToFloat(record[16]), 2),
+			XERA:		roundFloat(ConvertToFloat(record[17]), 2),
+			FIP:		roundFloat(ConvertToFloat(record[18]), 2),
+			XFIP:		roundFloat(ConvertToFloat(record[19]), 2),
+			WAR:		roundFloat(ConvertToFloat(record[20]), 1),
+		}
+		players = append(players, row)
+	}
+
+	return players
+}
+
+func (pool *DBPool) ImportPositionPlayerDataFromCSV() error {
+	players := ReadFromCSVPositionPlayer()
 	for _, player := range players {
-		err := pool.AddPlayer(player)
+		err := pool.AddPositionPlayer(player)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (pool *DBPool) ImportPitcherDataFromCSV() error {
+	players := ReadFromCSVPitcher()
+	for _, player := range players {
+		err := pool.AddPitcher(player)
 		if err != nil {
 			return err
 		}
@@ -196,7 +301,7 @@ func (pool *DBPool) ImportDataFromCSV() error {
 // GetPlayers will return a list of players
 //
 // retrieves all existing players in the position_players table
-func (pool *DBPool) GetPlayers() ([]*PositionPlayer, error) {
+func (pool *DBPool) GetPositionPlayers() ([]*PositionPlayer, error) {
 	query := `SELECT * FROM position_players`
 
 	rows, err := pool.db.Query(context.Background(), query)
@@ -211,7 +316,7 @@ func (pool *DBPool) GetPlayers() ([]*PositionPlayer, error) {
 			&player.ID,
 			&player.Name,
 			&player.Team,
-			&player.Games,
+			&player.G,
 			&player.PA,
 			&player.HR,
 			&player.R,
@@ -244,7 +349,7 @@ func (pool *DBPool) GetPlayers() ([]*PositionPlayer, error) {
 // GetPlayerByID will return a player
 //
 // it will query the position_players table based on a given player id
-func (pool *DBPool) GetPlayerByID(id int) (*PositionPlayer, error) {
+func (pool *DBPool) GetPositionPlayerByID(id int) (*PositionPlayer, error) {
 	query := `SELECT * FROM position_players WHERE player_id = $1`
 	player := &PositionPlayer{}
 
@@ -252,7 +357,7 @@ func (pool *DBPool) GetPlayerByID(id int) (*PositionPlayer, error) {
 		&player.ID,
 		&player.Name,
 		&player.Team,
-		&player.Games,
+		&player.G,
 		&player.PA,
 		&player.HR,
 		&player.R,
@@ -282,16 +387,16 @@ func (pool *DBPool) GetPlayerByID(id int) (*PositionPlayer, error) {
 // AddPlayer will add a player to the position_players table
 //
 // will return nil if successful, error if unsuccessful
-func (pool *DBPool) AddPlayer(player *PositionPlayer) error {
+func (pool *DBPool) AddPositionPlayer(player *PositionPlayer) error {
 	query := `INSERT INTO position_players 
-	(name, team, games, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, x_woba, bsr, war)
+	(name, team, g, pa, hr, runs, rbi, sb, wrc_plus, bb_rate, k_rate, iso, babip, average, obp, slg, woba, x_woba, bsr, war)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
 	ON CONFLICT (name, team) DO NOTHING`
 
 	_, err := pool.db.Exec(context.Background(), query,
 		&player.Name,
 		&player.Team,
-		&player.Games,
+		&player.G,
 		&player.PA,
 		&player.HR,
 		&player.R,
@@ -320,11 +425,11 @@ func (pool *DBPool) AddPlayer(player *PositionPlayer) error {
 // UpdatePlayer will update a player in the position_players table given a player id
 //
 // if unsuccessful, will return an error
-func (pool *DBPool) UpdatePlayer(player *PositionPlayer) error {
+func (pool *DBPool) UpdatePositionPlayer(player *PositionPlayer) error {
 	query := `UPDATE position_players SET
 	name = $1,
 	team = $2,
-	games = $3,
+	g = $3,
 	pa = $4,
 	hr = $5,
 	runs = $6,
@@ -347,7 +452,7 @@ func (pool *DBPool) UpdatePlayer(player *PositionPlayer) error {
 	res, err := pool.db.Exec(context.Background(), query,
 		&player.Name,
 		&player.Team,
-		&player.Games,
+		&player.G,
 		&player.PA,
 		&player.HR,
 		&player.R,
@@ -377,8 +482,209 @@ func (pool *DBPool) UpdatePlayer(player *PositionPlayer) error {
 }
 
 // DeletePlayer deletes a player by player id in the position_players table
-func (pool *DBPool) DeletePlayer(id int) error {
+func (pool *DBPool) DeletePositionPlayer(id int) error {
 	query := `DELETE FROM position_players WHERE player_id = $1`
+
+	_, err := pool.db.Exec(context.Background(), query, id)
+	return err
+}
+
+
+// *******************
+// Pitcher methods
+// *******************
+
+// GetPitchers will return a list of pitchers
+//
+// retrieves all existing players in the pitchers table
+func (pool *DBPool) GetPitchers() ([]*Pitcher, error) {
+	query := `SELECT * FROM pitchers`
+
+	rows, err := pool.db.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+
+	players := []*Pitcher{}
+	for rows.Next() {
+		player := &Pitcher{}
+		err := rows.Scan(
+			&player.ID,
+			&player.Name,
+			&player.Team,
+			&player.W,
+			&player.L,
+			&player.SV,
+			&player.G,
+			&player.GS,
+			&player.IP,
+			&player.K9,
+			&player.BB9,
+			&player.HR9,
+			&player.BABIP,
+			&player.LOB,
+			&player.GB,
+			&player.HRFB,
+			&player.VFA,
+			&player.ERA,
+			&player.XERA,
+			&player.FIP,
+			&player.XFIP,
+			&player.WAR,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		players = append(players, player)
+	}
+
+	return players, nil
+}
+
+// GetPlayerByID will return a player
+//
+// it will query the position_players table based on a given player id
+func (pool *DBPool) GetPitcherByID(id int) (*Pitcher, error) {
+	query := `SELECT * FROM pitchers WHERE player_id = $1`
+	player := &Pitcher{}
+
+	err := pool.db.QueryRow(context.Background(), query, id).Scan(
+		&player.ID,
+		&player.Name,
+		&player.Team,
+		&player.W,
+		&player.L,
+		&player.SV,
+		&player.G,
+		&player.GS,
+		&player.IP,
+		&player.K9,
+		&player.BB9,
+		&player.HR9,
+		&player.BABIP,
+		&player.LOB,
+		&player.GB,
+		&player.HRFB,
+		&player.VFA,
+		&player.ERA,
+		&player.XERA,
+		&player.FIP,
+		&player.XFIP,
+		&player.WAR,
+	)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return player, nil
+}
+
+// AddPlayer will add a player to the position_players table
+//
+// will return nil if successful, error if unsuccessful
+func (pool *DBPool) AddPitcher(player *Pitcher) error {
+	query := `INSERT INTO pitchers 
+	(name, team, w, l, sv, g, gs, ip, k9, bb9, hr9, babip, lob, gb, hrfb, vfa, era, xera, fip, xfip, war)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+	ON CONFLICT (name, team) DO NOTHING`
+
+	_, err := pool.db.Exec(context.Background(), query,
+		&player.Name,
+		&player.Team,
+		&player.W,
+		&player.L,
+		&player.SV,
+		&player.G,
+		&player.GS,
+		&player.IP,
+		&player.K9,
+		&player.BB9,
+		&player.HR9,
+		&player.BABIP,
+		&player.LOB,
+		&player.GB,
+		&player.HRFB,
+		&player.VFA,
+		&player.ERA,
+		&player.XERA,
+		&player.FIP,
+		&player.XFIP,
+		&player.WAR,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UpdatePlayer will update a player in the position_players table given a player id
+//
+// if unsuccessful, will return an error
+func (pool *DBPool) UpdatePitcher(player *Pitcher) error {
+	query := `UPDATE pitchers SET
+	name = $1,
+	team = $2,
+	w = $3,
+	l = $4,
+	sv = $5,
+	g = $6,
+	gs = $7,
+	ip = $8,
+	k9 = $9,
+	bb9 = $10,
+	hr9 = $11,
+	babip = $12,
+	lob = $13,
+	gb = $14,
+	hrfb = $15,
+	vfa = $16,
+	era = $17,
+	xera = $18,
+	fip = $19,
+	xfip = $20,
+	war = $21,
+	WHERE player_id = $22`
+
+	res, err := pool.db.Exec(context.Background(), query,
+		&player.Name,
+		&player.Team,
+		&player.W,
+		&player.L,
+		&player.SV,
+		&player.G,
+		&player.GS,
+		&player.IP,
+		&player.K9,
+		&player.BB9,
+		&player.HR9,
+		&player.BABIP,
+		&player.LOB,
+		&player.GB,
+		&player.HRFB,
+		&player.VFA,
+		&player.ERA,
+		&player.XERA,
+		&player.FIP,
+		&player.XFIP,
+		&player.WAR,
+		&player.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	log.Println("rows affected:", res.RowsAffected())
+
+	return nil
+}
+
+// DeletePlayer deletes a player by player id in the position_players table
+func (pool *DBPool) DeletePitcher(id int) error {
+	query := `DELETE FROM pitchers WHERE player_id = $1`
 
 	_, err := pool.db.Exec(context.Background(), query, id)
 	return err

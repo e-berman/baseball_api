@@ -133,6 +133,7 @@ type Pitcher struct {
 	Team		string  `json:"team"`
 	W		int	`json:"wins"`
 	L		int	`json:"losses"`
+	SV		int	`json:"saves"`
 	G		int     `json:"games"`
 	GS		int	`json:"gamesSaved"`
 	IP		float64	`json:"inningsPitched"`
@@ -158,6 +159,7 @@ type CreatePitcherRequest struct {
 	Team		string  `json:"team"`
 	W		int	`json:"wins"`
 	L		int	`json:"losses"`
+	SV		int	`json:"saves"`
 	G		int     `json:"games"`
 	GS		int	`json:"gamesSaved"`
 	IP		float64	`json:"inningsPitched"`
@@ -183,6 +185,7 @@ type UpdatePitcherRequest struct {
 	Team		string  `json:"team"`
 	W		int	`json:"wins"`
 	L		int	`json:"losses"`
+	SV		int	`json:"saves"`
 	G		int     `json:"games"`
 	GS		int	`json:"gamesSaved"`
 	IP		float64	`json:"inningsPitched"`
@@ -213,12 +216,13 @@ type DeletedPitcher struct {
 	deletedMap map[string]int
 }
 
-func NewPitcher(name, team string, w, l, g, gs int, ip, k9, bb9, hr9, babip, lob, gb, hrfb, vfa, era, xera, fip, xfip, war float64) *Pitcher {
+func NewPitcher(name, team string, w, l, sv, g, gs int, ip, k9, bb9, hr9, babip, lob, gb, hrfb, vfa, era, xera, fip, xfip, war float64) *Pitcher {
 	return &Pitcher{
 		Name:		name,
 		Team:		team,
 		W:		w,
 		L:		l,
+		SV:		sv,
 		G:		g,
 		GS:		gs,
 		IP:		ip,
