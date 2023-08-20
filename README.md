@@ -66,7 +66,7 @@ Example JSON Payload:
 
 ## To Do 
 
-- [ ] add pitchers db table and api endpoints
+- [x] add pitchers db table and api endpoints
 - [ ] add teams db table and api endpoints
 - [ ] improve unit testing (mock or no mock?)
 - [ ] add daily csv import from reliable baseball statistics source (fangraphs or baseball savant?)
