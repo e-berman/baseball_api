@@ -2,7 +2,7 @@
 
 a REST API for baseball player stats written in Go.
 
-uses the [net/http](https://pkg.go.dev/net/http) library for routing and the [pgx](https://github.com/jackc/pgx) as the Postgres driver/toolkit.
+uses the [net/http](https://pkg.go.dev/net/http) library for routing and the [pgx](https://github.com/jackc/pgx) library for the Postgres driver/toolkit.
 
 the api and database are containerized via Docker.
 
