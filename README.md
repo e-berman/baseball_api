@@ -4,6 +4,8 @@ a REST API for baseball player stats written in Go.
 
 uses the [net/http](https://pkg.go.dev/net/http) library for routing and the [pgx](https://github.com/jackc/pgx) library for the Postgres driver/toolkit.
 
+the data in the database is structured based on the player data format according to [Fangraphs](https://www.fangraphs.com/)
+
 the api and database are containerized via Docker.
 
 OpenAPI specification available -> [HERE](https://app.swaggerhub.com/apis/e-berman/baseball-api/0.0.1)
