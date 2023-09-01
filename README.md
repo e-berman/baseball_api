@@ -1,10 +1,10 @@
 # baseball api
 
-a REST API for baseball player stats.
+a REST API for baseball player stats written in Go.
 
-written in Golang and uses the standard [net/http](https://pkg.go.dev/net/http) library for routing.
+uses the [net/http](https://pkg.go.dev/net/http) library for routing and the [pgx](https://github.com/jackc/pgx) as the Postgres driver/toolkit.
 
-uses [pgx](https://github.com/jackc/pgx) as the Postgres driver/toolkit and two Docker containers for the api and database.
+the api and database are containerized via Docker.
 
 OpenAPI specification available -> [HERE](https://app.swaggerhub.com/apis/e-berman/baseball-api/0.0.1)
 
@@ -34,15 +34,23 @@ OpenAPI specification available -> [HERE](https://app.swaggerhub.com/apis/e-berm
 
 | HTTP Verbs | Endpoints | Action |
 | --- | --- | --- |
-| GET | /api/players/ | retrieve all players |
-| GET | /api/players/:id | retrieve a single player |
-| POST | /api/players/ | add a new player |
-| PUT | /api/players/:id | edit field(s) of a single player |
-| DELETE | /api/players/:id | delete a single player |
+| GET | /api/position_players/ | retrieve all position players |
+| GET | /api/position_players/:id | retrieve a single position player by id |
+| POST | /api/position_players/ | add a new position player |
+| PUT | /api/position_players/:id | edit field(s) of a single position player |
+| DELETE | /api/position_players/:id | delete a single position player |
+| --- | --- | --- |
+| GET | /api/pitchers/ | retrieve all pitchers |
+| GET | /api/pitchers/:id | retrieve a single pitcher by id |
+| POST | /api/pitchers/ | add a new pitcher |
+| PUT | /api/pitchers/:id | edit field(s) of a single pitcher |
+| DELETE | /api/pitchers/:id | delete a single pitcher |
 
-Example URL: `http://127.0.0.1:4242/api/players/`
 
-Example JSON Payload:
+Example URL: `http://127.0.0.1:4242/api/position_players/`
+
+
+Example JSON Payload for a position player:
 
 ```
 {
@@ -54,21 +62,25 @@ Example JSON Payload:
     "runs": 1383,
     "runsBattedIn": 1138,
     "stolenBases": 319,
+    "weightedRunsCreatedPlus": 137,
     "walkRate": 7.7,
     "strikeoutRate": 4.2,
     "isolatedPower": 0.120,
+    "battingAvgBallsInPlay": 0.294,
     "battingAvg": 0.338,
     "onBasePct": 0.388,
     "sluggingPct": 0.459,
     "weightedOnBaseAvg": 0.370,
+    "expWeightedOnBaseAvg": 0.345,
+    "baseRunning": 1.5,
+    "winsAboveReplacement": 4.5,
 }
 ```
 
 ## To Do 
 
 - [x] add pitchers db table and api endpoints
-- [ ] add teams db table and api endpoints
-- [ ] improve unit testing (mock or no mock?)
+- [ ] improve unit testing
 - [ ] add daily csv import from reliable baseball statistics source (fangraphs or baseball savant?)
 - [ ] build out front-end for documentation and api usage
 
