@@ -17,20 +17,11 @@ OpenAPI specification available -> [HERE](https://app.swaggerhub.com/apis/e-berm
 
 ## To Run
 
-1. Modify or add a desired csv to the baseball_api directory. It must be in the same format as the example stats.csv file. 
+1. Modify or add a desired csv to the baseball_api/assets/ directory. It must be in the same format as the batters.csv and pitchers.csv file(s). 
 
 2. Create and build both the database and REST API containers: `make build`
 
-3. If you do not want to import data via csv, skip steps 4-6. Use endpoints as desired.
-
-4. Run `make get_path` to get the absolute filepath of desired csv file. 
-
-5. Run the REST API container in an interactive shell and build the main executable: `make run`
-
-6. Select 'Y' to add a filepath. When prompted, paste in the filepath from step 5.
-
-7. When successfully imported, you can access the database with the following: `make db`
-
+3. Database will import .csv data if added. You can access the database with the following: `make db`
 
 ## Endpoints
 
