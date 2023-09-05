@@ -1,18 +1,240 @@
-basePath: /
-consumes:
-    - application/json
-definitions:
-    CreatePlayerRequest:
-        description: CreatePlayerRequest is the type used to create a player
+openapi: 3.0.3
+info:
+    title: baseball_api
+    description: A RESTful API for baseball player stats in Go
+    version: 0.0.1
+tags:
+    - name: position players
+      description: all position players
+    - name: pitchers
+      description: all pitchers
+paths:
+    /api/position_players/:
+        get:
+            tags:
+                - position players
+            operationId: getPositionPlayers
+            summary: Returns all position players
+            responses:
+                "200":
+                    description: Returns list of position players on success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PositionPlayer'
+        post:
+            tags:
+                - position players
+            operationId: addPositionPlayer
+            summary: Adds a position player to the database
+            requestBody:
+                description: Add a new position player
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PositionPlayer'
+                required: true
+            responses:
+                "200":
+                    description: Returns added position player object on success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreatePositionPlayerRequest'
+    /api/position_players/{id}:
+        delete:
+            tags:
+                - position players
+            operationId: deletePositionPlayer
+            summary: Deletes a position player from the database given id
+            parameters:
+                - in: path
+                  description: id of position player to delete
+                  name: id
+                  required: true
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: Returns deleted position player id on success
+                    schema:
+                        $ref: '#/components/schemas/DeletedPositionPlayer'
+                "400":
+                    description: invalid position player value
+        get:
+            tags:
+                - position players
+            operationId: getPositionPlayerByID
+            summary: Returns a position player by given id
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: Returns retrieved position player on success
+                    schema:
+                        $ref: '#/components/schemas/PositionPlayer'
+                "400":
+                    description: invalid position player value
+        put:
+            tags:
+                - position players
+            operationId: updatePositionPlayer
+            summary: Updates a position player given an id
+            requestBody:
+                description: Update an existing position player
+                content:
+                    applications/json:
+                        schema:
+                            $ref: '#/components/schema/UpdatedPositionPlayer'
+                required: true
+            responses:
+                "200":
+                    description: Returns updated position player id on success
+                    content:
+                        applications/json:
+                            schema: 
+                                $ref: '#/components/schemas/UpdatedPositionPlayer'
+                '400':
+                    description: Invalid ID supplied
+                '404':
+                    description: Position player not found
+    /api/pitchers/:
+        get:
+            tags:
+                - pitchers
+            operationId: getPitchers
+            summary: Returns all pitchers
+            responses:
+                "200":
+                    description: Returns list of pitchers on success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Pitcher'
+        post:
+            tags:
+                - pitchers
+            operationId: addPitcher
+            summary: Adds a pitcher to the database
+            requestBody:
+                description: Add a new pitcher
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Pitcher'
+                required: true
+            responses:
+                "200":
+                    description: Returns added pitcher object on success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreatePitcherRequest'
+    /api/pitchers/{id}:
+        delete:
+            tags:
+                - pitchers
+            operationId: deletePitcher
+            summary: Deletes a pitcher from the database given id
+            parameters:
+                - in: path
+                  description: id of pitcher to delete
+                  name: id
+                  required: true
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: Returns deleted pitcher id on success
+                    schema:
+                        $ref: '#/components/schemas/DeletedPitcher'
+                "400":
+                    description: invalid pitcher value
+        get:
+            tags:
+                - pitchers
+            operationId: getPitcherByID
+            summary: Returns a pitcher by given id
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: Returns retrieved pitcher on success
+                    schema:
+                        $ref: '#/components/schemas/Pitcher'
+                "400":
+                    description: invalid pitcher value
+        put:
+            tags:
+                - pitchers
+            operationId: updatePitcher
+            summary: Updates a pitcher given an id
+            requestBody:
+                description: Update an existing pitcher
+                content:
+                    applications/json:
+                        schema:
+                            $ref: '#/components/schema/UpdatedPitcher'
+                required: true
+            responses:
+                "200":
+                    description: Returns updated pitcher id on success
+                    content:
+                        applications/json:
+                            schema: 
+                                $ref: '#/components/schemas/UpdatedPitcher'
+                '400':
+                    description: Invalid ID supplied
+                '404':
+                    description: Pitcher not found
+components:
+    schemas:
+    CreatePositionPlayerRequest:
+        type: object
+        description: CreatePositionPlayerRequest is the type used to create a position player
         properties:
+            baseRunning:
+                description: Base Running runs above average. Includes SB or CS.
+                example: 2.4
+                format: double
+                type: number
+                x-go-name: BsR
             battingAvg:
-                description: Batting average of a player in a season
+                description: Batting average of a player in a season.
                 example: 0.245
                 format: double
                 maximum: 1
                 minimum: 0
                 type: number
                 x-go-name: AVG
+            battingAvgBallsInPlay:
+                description: BABIP measures a player's batting average exclusively on balls hit into the field of play, removing outcomes not affected by the opposing defense (namely home runs and strikeouts).
+                example: 0.273
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: BABIP
+            expWeightedOnBaseAvg:
+                description: wOBA is a version of on-base percentage that accounts for how a player reached base --instead of simply considering whether a player reached base.
+                example: 0.352
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: wOBA
             games:
                 description: Number of games played in a season
                 format: int64
@@ -114,29 +336,65 @@ definitions:
                 minimum: 0
                 type: number
                 x-go-name: WOBA
+            weightedRunsCreatedPlus:
+                description: takes the Runs Created stat and adjust it to account for external factors
+                example: 112
+                format: int64
+                maximum: 300
+                minimum: 0
+                type: integer
+                x-go-name: WRCPlus
+            winsAboveReplacement:
+                description: WAR measures a player's value in all facets of the game by deciphering how many more wins he's worth than a replacement-level player at the same position.
+                example: 3.4
+                format: double
+                type: number
+                x-go-name: WAR
         required:
             - name
-        type: object
         x-go-package: github.com/e-berman/baseball_api
-    DeletedPlayer:
-        description: DeletedPlayer is the type used to return the id of the player deleted upon success
+    DeletedPositionPlayer:
+        description: DeletedPositionPlayer is the type used to return the id of the position player deleted upon success
         type: object
         additionalProperties:
             type: integer
         example:
             deleted: 3
         x-go-package: github.com/e-berman/baseball_api
-    Player:
-        description: Player is the type used to represent a player
+    PositionPlayer:
+        description: PositionPlayer is the type used to represent a position player
+        type: object
         properties:
+            baseRunning:
+                description: Base Running runs above average. Includes SB or CS.
+                example: 2.4
+                format: double
+                type: number
+                x-go-name: BsR
             battingAvg:
-                description: Batting average of a player in a season
+                description: Batting average of a player in a season.
                 example: 0.245
                 format: double
                 maximum: 1
                 minimum: 0
                 type: number
                 x-go-name: AVG
+            battingAvgBallsInPlay:
+                description: BABIP measures a player's batting average exclusively on balls hit into the field of play, removing outcomes not affected by the opposing defense (namely home runs and strikeouts).
+                example: 0.273
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: BABIP
+            expWeightedOnBaseAvg:
+                description: wOBA is a version of on-base percentage that accounts for how a player reached base --instead of simply considering whether a player reached base.
+                example: 0.352
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: wOBA
             games:
                 description: Number of games played in a season
                 format: int64
@@ -243,21 +501,56 @@ definitions:
                 minimum: 0
                 type: number
                 x-go-name: WOBA
+            weightedRunsCreatedPlus:
+                description: takes the Runs Created stat and adjust it to account for external factors
+                example: 112
+                format: int64
+                maximum: 300
+                minimum: 0
+                type: integer
+                x-go-name: WRCPlus
+            winsAboveReplacement:
+                description: WAR measures a player's value in all facets of the game by deciphering how many more wins he's worth than a replacement-level player at the same position.
+                example: 3.4
+                format: double
+                type: number
+                x-go-name: WAR
         required:
             - name
+    UpdatePositionPlayerRequest:
+        description: UpdatePositionPlayerRequest is the type used to update a position player
         type: object
-        x-go-package: github.com/e-berman/baseball_api
-    UpdatePlayerRequest:
-        description: UpdatePlayerRequest is the type used to update a player
         properties:
+            baseRunning:
+                description: Base Running runs above average. Includes SB or CS.
+                example: 2.4
+                format: double
+                type: number
+                x-go-name: BsR
             battingAvg:
-                description: Batting average of a player in a season
+                description: Batting average of a player in a season.
                 example: 0.245
                 format: double
                 maximum: 1
                 minimum: 0
                 type: number
                 x-go-name: AVG
+            battingAvgBallsInPlay:
+                description: BABIP measures a player's batting average exclusively on balls hit into the field of play, removing outcomes not affected by the opposing defense (namely home runs and strikeouts).
+                example: 0.273
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: BABIP
+            expWeightedOnBaseAvg:
+                description: wOBA is a version of on-base percentage that accounts for how a player reached base --instead of simply considering whether a player reached base.
+                example: 0.352
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: wOBA
             games:
                 description: Number of games played in a season
                 format: int64
@@ -359,97 +652,540 @@ definitions:
                 minimum: 0
                 type: number
                 x-go-name: WOBA
+            weightedRunsCreatedPlus:
+                description: takes the Runs Created stat and adjust it to account for external factors
+                example: 112
+                format: int64
+                maximum: 300
+                minimum: 0
+                type: integer
+                x-go-name: WRCPlus
+            winsAboveReplacement:
+                description: WAR measures a player's value in all facets of the game by deciphering how many more wins he's worth than a replacement-level player at the same position.
+                example: 3.4
+                format: double
+                type: number
+                x-go-name: WAR
         required:
             - name
-        type: object
-        x-go-package: github.com/e-berman/baseball_api
-    UpdatedPlayer:
-        description: UpdatedPlayer is the type used to return the id of the player updated upon success
+    UpdatedPositionPlayer:
+        description: UpdatedPositionPlayer is the type used to return the id of the position player updated upon success
         type: object
         additionalProperties:
             type: integer
         example:
             updated: 1
-        x-go-package: github.com/e-berman/baseball_api
-host: localhost
-info:
-    description: This application is a REST API for baseball players stats
-    title: Baseball API
-    version: 0.0.1
-paths:
-    /api/players/:
-        get:
-            operationId: getPlayers
-            produces:
-                - application/json
-            responses:
-                "200":
-                    description: Returns list of players
-                    schema:
-                        type: array
-                        items:
-                            oneOf:
-                                - $ref: '#/definitions/Player'
-                                - $ref: '#/definitions/Player'
-            summary: Returns all position players
-        post:
-            operationId: addPlayer
-            produces:
-                - application/json
-            responses:
-                "200":
-                    description: Returns added player
-                    schema:
-                        $ref: '#/definitions/CreatePlayerRequest'
-            summary: Adds a Player to the database
-    /api/players/{id}:
-        delete:
-            operationId: deletePlayer
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  type: integer
-            produces:
-                - application/json
-            responses:
-                "200":
-                    description: Returns deleted player id
-                    schema:
-                        $ref: '#/definitions/DeletedPlayer'
-            summary: Deletes a Player from the database given id
-        get:
-            operationId: getPlayerByID
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  type: integer
-            produces:
-                - application/json
-            responses:
-                "200":
-                    description: Returns retrieved player
-                    schema:
-                        $ref: '#/definitions/Player'
-            summary: Returns a Player by given id
-        put:
-            operationId: updatePlayer
-            parameters:
-                - in: path
-                  name: id
-                  required: true
-                  type: integer
-            produces:
-                - application/json
-            responses:
-                "200":
-                    description: Returns updated player id
-                    schema:
-                        $ref: '#/definitions/UpdatedPlayer'
-            summary: Updates a Player given an id
-produces:
-    - application/json
-schemes:
-    - http
-swagger: "2.0"
+    Pitcher:
+        description: Pitcher is the type used to represent a pitcher
+        type: object
+        properties:
+            battingAvgBallsInPlay:
+                description: BABIP measures a player's batting average exclusively on balls hit into the field of play, removing outcomes not affected by the opposing defense (namely home runs and strikeouts).
+                example: 0.273
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: BABIP
+            earnedRunAvg:
+                description: Earned run average represents the number of earned runs a pitcher allows per nine innings -- with earned runs being any runs that scored without the aid of an error or a passed ball.
+                example: 2.87
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: ERA
+            expectedEarnedRunAvg: 
+                description: Expected ERA, or xERA, is a simple 1:1 translation of Expected Weighted On-Base Average (xwOBA), converted to the ERA scale.
+                example: 2.45
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: xERA
+            expectedFielderIndependentPitching:
+                description: xFIP finds a pitcher's FIP, but it uses projected home-run rate instead of actual home runs allowed. The home run rate is determined by that season's league average HR/FB rate.
+                example: 3.45
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: xFIP
+            fielderIndependentPitching:
+                description: FIP is similar to ERA, but it focuses solely on the events a pitcher has the most control over -- strikeouts, walks, hit-by-pitches and home runs. It entirely removes results on balls hit into the field of play.
+                example: 3.27
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: FIP
+            fourseamFastballVelocity:
+                description: Average velocity of a pitcher's fourseam fastball.
+                example: 95.2
+                format: double
+                maximum: 110
+                minimum: 0
+                type: number
+                x-go-name: vFA
+            games:
+                description: Number of games pitched in.
+                example: 12
+                format: int64
+                maximum: 162
+                minimum: 0
+                type: integer
+                x-go-name: G
+            gamesSaved:
+                description: Number of games saved.
+                example: 35
+                format: int64
+                maximum: 162
+                minimum: 0
+                type: integer
+                x-go-name: GS
+            groundballRate:
+                description: Ground-ball rate represents the percentage of balls hit into the field of play that are characterized as ground balls.
+                example: 23.4
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: GBRate
+            homeRunsPerNine:
+                description: HR/9 represents the average number of home runs allowed by a pitcher on a nine-inning scale.
+                example: 1.23
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: HR9
+            homeRunToFlyBallRatio:
+                description: Home-run-to-fly-ball (HR/FB) rate is the rate at which home runs are hit against a pitcher for every fly ball he allows.
+                example: 13.2
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: HR/FB
+            id:
+                description: Player id (auto incremented by database)
+                format: int64
+                type: integer
+                x-go-name: ID
+            inningsPitched:
+                description: Number of innings pitched by a pitcher.
+                example: 89.3
+                format: double
+                maximum: 300
+                minimum: 0
+                type: number
+                x-go-name: IP
+            leftOnBase:
+                description: Percentage of runners left on base by a particular pitcher.
+                example: 73.4
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: LOBRate
+            losses:
+                description: Number of losses by a pitcher.
+                example: 12
+                format: int64
+                maximum: 50
+                minimum: 0
+                type: integer
+                x-go-name: L
+            name:
+                description: Player name
+                minLength: 3
+                type: string
+                x-go-name: Name
+            saves:
+                description: Number of games saved by a pitcher.
+                example: 21
+                format: int64
+                maximum: 100
+                minimum: 0
+                type: integer
+                x-go-name: SV
+            strikeoutsPerNine:
+                description: Measures how many strikeouts a pitcher averages over nine innings.
+                example: 10.2
+                format: double
+                maximum: 50
+                minimum: 0
+                type: number
+                x-go-name: K9
+            team:
+                description: Team of player
+                example: TBR
+                maxLength: 3
+                type: string
+                x-go-name: Team
+            walksPerNine:
+                description: Measures how many walks a pitcher averages over nine innings.
+                example: 4.23
+                format: double
+                maximum: 20
+                minimum: 0
+                type: number
+                x-go-name: BB9
+            wins:
+                description: Number of games a pitcher has earned the win for.
+                example: 8
+                format: int64
+                maximum: 50
+                minimum: 0
+                type: integer
+                x-go-name: W
+            winsAboveReplacement:
+                description: WAR measures a player's value in all facets of the game by deciphering how many more wins he's worth than a replacement-level player at the same position.
+                example: 3.4
+                format: double
+                type: number
+                x-go-name: WAR
+    CreatePitcherRequest:
+        description: CreatePitcherRequest is the type used to create a pitcher
+        type: object
+        properties:
+            battingAvgBallsInPlay:
+                description: BABIP measures a player's batting average exclusively on balls hit into the field of play, removing outcomes not affected by the opposing defense (namely home runs and strikeouts).
+                example: 0.273
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: BABIP
+            earnedRunAvg:
+                description: Earned run average represents the number of earned runs a pitcher allows per nine innings -- with earned runs being any runs that scored without the aid of an error or a passed ball.
+                example: 2.87
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: ERA
+            expectedEarnedRunAvg: 
+                description: Expected ERA, or xERA, is a simple 1:1 translation of Expected Weighted On-Base Average (xwOBA), converted to the ERA scale.
+                example: 2.45
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: xERA
+            expectedFielderIndependentPitching:
+                description: xFIP finds a pitcher's FIP, but it uses projected home-run rate instead of actual home runs allowed. The home run rate is determined by that season's league average HR/FB rate.
+                example: 3.45
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: xFIP
+            fielderIndependentPitching:
+                description: FIP is similar to ERA, but it focuses solely on the events a pitcher has the most control over -- strikeouts, walks, hit-by-pitches and home runs. It entirely removes results on balls hit into the field of play.
+                example: 3.27
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: FIP
+            fourseamFastballVelocity:
+                description: Average velocity of a pitcher's fourseam fastball.
+                example: 95.2
+                format: double
+                maximum: 110
+                minimum: 0
+                type: number
+                x-go-name: vFA
+            games:
+                description: Number of games pitched in.
+                example: 12
+                format: int64
+                maximum: 162
+                minimum: 0
+                type: integer
+                x-go-name: G
+            gamesSaved:
+                description: Number of games saved.
+                example: 35
+                format: int64
+                maximum: 162
+                minimum: 0
+                type: integer
+                x-go-name: GS
+            groundballRate:
+                description: Ground-ball rate represents the percentage of balls hit into the field of play that are characterized as ground balls.
+                example: 23.4
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: GBRate
+            homeRunsPerNine:
+                description: HR/9 represents the average number of home runs allowed by a pitcher on a nine-inning scale.
+                example: 1.23
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: HR9
+            homeRunToFlyBallRatio:
+                description: Home-run-to-fly-ball (HR/FB) rate is the rate at which home runs are hit against a pitcher for every fly ball he allows.
+                example: 13.2
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: HR/FB
+            inningsPitched:
+                description: Number of innings pitched by a pitcher.
+                example: 89.3
+                format: double
+                maximum: 300
+                minimum: 0
+                type: number
+                x-go-name: IP
+            leftOnBase:
+                description: Percentage of runners left on base by a particular pitcher.
+                example: 73.4
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: LOBRate
+            losses:
+                description: Number of losses by a pitcher.
+                example: 12
+                format: int64
+                maximum: 50
+                minimum: 0
+                type: integer
+                x-go-name: L
+            name:
+                description: Player name
+                minLength: 3
+                type: string
+                x-go-name: Name
+            saves:
+                description: Number of games saved by a pitcher.
+                example: 21
+                format: int64
+                maximum: 100
+                minimum: 0
+                type: integer
+                x-go-name: SV
+            strikeoutsPerNine:
+                description: Measures how many strikeouts a pitcher averages over nine innings.
+                example: 10.2
+                format: double
+                maximum: 50
+                minimum: 0
+                type: number
+                x-go-name: K9
+            team:
+                description: Team of player
+                example: TBR
+                maxLength: 3
+                type: string
+                x-go-name: Team
+            walksPerNine:
+                description: Measures how many walks a pitcher averages over nine innings.
+                example: 4.23
+                format: double
+                maximum: 20
+                minimum: 0
+                type: number
+                x-go-name: BB9
+            wins:
+                description: Number of games a pitcher has earned the win for.
+                example: 8
+                format: int64
+                maximum: 50
+                minimum: 0
+                type: integer
+                x-go-name: W
+            winsAboveReplacement:
+                description: WAR measures a player's value in all facets of the game by deciphering how many more wins he's worth than a replacement-level player at the same position.
+                example: 3.4
+                format: double
+                type: number
+                x-go-name: WAR
+    UpdatePitcherRequest:
+        description: UpdatePitcherRequest is the type used to update a pitcher
+        type: object
+        properties:
+            battingAvgBallsInPlay:
+                description: BABIP measures a player's batting average exclusively on balls hit into the field of play, removing outcomes not affected by the opposing defense (namely home runs and strikeouts).
+                example: 0.273
+                format: double
+                maximum: 1
+                minimum: 0
+                type: number
+                x-go-name: BABIP
+            earnedRunAvg:
+                description: Earned run average represents the number of earned runs a pitcher allows per nine innings -- with earned runs being any runs that scored without the aid of an error or a passed ball.
+                example: 2.87
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: ERA
+            expectedEarnedRunAvg: 
+                description: Expected ERA, or xERA, is a simple 1:1 translation of Expected Weighted On-Base Average (xwOBA), converted to the ERA scale.
+                example: 2.45
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: xERA
+            expectedFielderIndependentPitching:
+                description: xFIP finds a pitcher's FIP, but it uses projected home-run rate instead of actual home runs allowed. The home run rate is determined by that season's league average HR/FB rate.
+                example: 3.45
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: xFIP
+            fielderIndependentPitching:
+                description: FIP is similar to ERA, but it focuses solely on the events a pitcher has the most control over -- strikeouts, walks, hit-by-pitches and home runs. It entirely removes results on balls hit into the field of play.
+                example: 3.27
+                format: double
+                maximum: 200
+                minimum: 0
+                type: number
+                x-go-name: FIP
+            fourseamFastballVelocity:
+                description: Average velocity of a pitcher's fourseam fastball.
+                example: 95.2
+                format: double
+                maximum: 110
+                minimum: 0
+                type: number
+                x-go-name: vFA
+            games:
+                description: Number of games pitched in.
+                example: 12
+                format: int64
+                maximum: 162
+                minimum: 0
+                type: integer
+                x-go-name: G
+            gamesSaved:
+                description: Number of games saved.
+                example: 35
+                format: int64
+                maximum: 162
+                minimum: 0
+                type: integer
+                x-go-name: GS
+            groundballRate:
+                description: Ground-ball rate represents the percentage of balls hit into the field of play that are characterized as ground balls.
+                example: 23.4
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: GBRate
+            homeRunsPerNine:
+                description: HR/9 represents the average number of home runs allowed by a pitcher on a nine-inning scale.
+                example: 1.23
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: HR9
+            homeRunToFlyBallRatio:
+                description: Home-run-to-fly-ball (HR/FB) rate is the rate at which home runs are hit against a pitcher for every fly ball he allows.
+                example: 13.2
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: HR/FB
+            inningsPitched:
+                description: Number of innings pitched by a pitcher.
+                example: 89.3
+                format: double
+                maximum: 300
+                minimum: 0
+                type: number
+                x-go-name: IP
+            leftOnBase:
+                description: Percentage of runners left on base by a particular pitcher.
+                example: 73.4
+                format: double
+                maximum: 100
+                minimum: 0
+                type: number
+                x-go-name: LOBRate
+            losses:
+                description: Number of losses by a pitcher.
+                example: 12
+                format: int64
+                maximum: 50
+                minimum: 0
+                type: integer
+                x-go-name: L
+            name:
+                description: Player name
+                minLength: 3
+                type: string
+                x-go-name: Name
+            saves:
+                description: Number of games saved by a pitcher.
+                example: 21
+                format: int64
+                maximum: 100
+                minimum: 0
+                type: integer
+                x-go-name: SV
+            strikeoutsPerNine:
+                description: Measures how many strikeouts a pitcher averages over nine innings.
+                example: 10.2
+                format: double
+                maximum: 50
+                minimum: 0
+                type: number
+                x-go-name: K9
+            team:
+                description: Team of player
+                example: TBR
+                maxLength: 3
+                type: string
+                x-go-name: Team
+            walksPerNine:
+                description: Measures how many walks a pitcher averages over nine innings.
+                example: 4.23
+                format: double
+                maximum: 20
+                minimum: 0
+                type: number
+                x-go-name: BB9
+            wins:
+                description: Number of games a pitcher has earned the win for.
+                example: 8
+                format: int64
+                maximum: 50
+                minimum: 0
+                type: integer
+                x-go-name: W
+            winsAboveReplacement:
+                description: WAR measures a player's value in all facets of the game by deciphering how many more wins he's worth than a replacement-level player at the same position.
+                example: 3.4
+                format: double
+                type: number
+                x-go-name: WAR
+    UpdatedPitcher:
+        description: UpdatedPitcher is the type used to return the id of the pitcher updated upon success
+        type: object
+        additionalProperties:
+            type: integer
+        example:
+            updated: 1
+    DeletedPitcher:
+        description: DeletedPitcher is the type used to return the id of the pitcher deleted upon success
+        type: object
+        additionalProperties:
+            type: integer
+        example:
+            deleted: 3
