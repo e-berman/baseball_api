@@ -5,8 +5,6 @@ package models
 // Position Player Model
 // *************
 
-// PoisitionPlayer is the type used to represent a position player
-// swagger:model
 type PositionPlayer struct {
 	// Player id (auto incremented by database)
 	ID		int     `json:"id"`
@@ -33,8 +31,6 @@ type PositionPlayer struct {
 
 }
 
-// CreatePositionPlayerRequest is the type used to create a player
-// swagger:model
 type CreatePositionPlayerRequest struct {
 	Name		string  `json:"name"`
 	Team		string  `json:"team"`
@@ -58,8 +54,6 @@ type CreatePositionPlayerRequest struct {
 	WAR		float64 `json:"winsAboveReplacement"`
 }
 
-// UpdatePositionPlayerRequest is the type used to update a player
-// swagger:model
 type UpdatePositionPlayerRequest struct {
 	Name		string  `json:"name"`
 	Team		string  `json:"team"`
@@ -83,14 +77,10 @@ type UpdatePositionPlayerRequest struct {
 	WAR		float64 `json:"winsAboveReplacement"`
 }
 
-// UpdatedPlayer is the type used to return the id of the player updated upon success
-// swagger:model
 type UpdatedPositionPlayer struct {
 	UpdatedMap map[string]int
 }
 
-// DeletedPlayer is the type used to return the id of the player deleted upon success
-// swagger:model
 type DeletedPositionPlayer struct {
 	DeletedMap map[string]int
 }
@@ -124,8 +114,6 @@ func NewPositionPlayer(name, team string, g, pa, hr, r, rbi, sb, wrcPlus int, bb
 // Pitcher Model
 // *************
 
-// Pitcher is the type used to represent a pitcher
-// swagger:model
 type Pitcher struct {
 	// Player id (auto incremented by database)
 	ID		int     `json:"id"`
@@ -152,8 +140,6 @@ type Pitcher struct {
 	WAR		float64 `json:"winsAboveReplacement"`
 }
 
-// CreatePitcherRequest is the type used to create a pitcher
-// swagger:model
 type CreatePitcherRequest struct {
 	Name		string  `json:"name"`
 	Team		string  `json:"team"`
@@ -178,8 +164,6 @@ type CreatePitcherRequest struct {
 	WAR		float64 `json:"winsAboveReplacement"`
 }
 
-// UpdatePitcherRequest is the type used to update a pitcher
-// swagger:model
 type UpdatePitcherRequest struct {
 	Name		string  `json:"name"`
 	Team		string  `json:"team"`
@@ -204,14 +188,10 @@ type UpdatePitcherRequest struct {
 	WAR		float64 `json:"winsAboveReplacement"`
 }
 
-// UpdatedPitcher is the type used to return the id of the player updated upon success
-// swagger:model
 type UpdatedPitcher struct {
 	UpdatedMap map[string]int
 }
 
-// DeletedPitcher is the type used to return the id of the player deleted upon success
-// swagger:model
 type DeletedPitcher struct {
 	DeletedMap map[string]int
 }
