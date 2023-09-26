@@ -1,5 +1,4 @@
 # FROM golang:latest
-
 FROM golang:latest
 
 # set the working directory inside the container
