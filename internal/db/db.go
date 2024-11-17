@@ -172,7 +172,7 @@ func roundFloat(val float64, precision uint) float64 {
 }
 
 func ReadFromCSVPositionPlayer() []*models.PositionPlayer {
-	file, err := os.Open("../../assets/batters.csv")
+	file, err := os.Open("./assets/batters.csv")
 	if err != nil {
 		log.Fatalf("Unable to open CSV file: %v\n", err)
 	}
