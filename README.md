@@ -12,12 +12,12 @@ OpenAPI specification available -> [HERE](https://app.swaggerhub.com/apis/e-berm
 
 ## Dependencies
 
-* Docker
-* Docker compose
+* docker
+* docker-compose
 
 ## To Run
 
-1. Modify or add a desired csv to the baseball_api/assets/ directory. It must be in the same format as the batters.csv and pitchers.csv file(s). 
+1. Modify or add a desired csv to the `baseball_api/assets` directory. It must be in the same format as the batters.csv and pitchers.csv file(s). 
 
 2. Create and build both the database and REST API containers: `make build`
 
@@ -76,5 +76,6 @@ Example JSON Payload for a position player:
 - [ ] improve unit testing
 - [ ] add daily csv import from reliable baseball statistics source (fangraphs or baseball savant?)
 - [ ] build out front-end for documentation and api usage
+- [x] refactor Dockerfile to multi-stage build
 
 
