@@ -2,34 +2,34 @@ version: "3.9"
 
 services:
   rest_api:
-    image: rest_api
-    build: 
+    build:
+      # set to directory where Dockerfile exists
       context: .
       dockerfile: Dockerfile
+    # allows interactive debugging, dx
     tty: true
     env_file:
       - .env
+    # maps host-port:container-port
     ports:
-      - 127.0.0.1:4242:4242
-   
-    environment:
-      POSTGRES_URL: ${POSTGRES_URL}
+      - 4242:4242
     networks:
       - bb-network
+    # ensures db service starts first
     depends_on:
       - db
     restart: on-failure
 
   db:
+    # uses official postgres image
     image: postgres
-    ports:
-      - 5432:5432
     env_file:
       - .env
-    environment:
-      POSTGRES_URL: ${POSTGRES_URL}
+    # host-path:container-path
+    # i.e. postgres-db is host path
+    # /var/lib/postgresql/data is container path
     volumes:
-      - ./postgres-db:/var/lib/postgresql/data
+      - postgres-db:/var/lib/postgresql/data
     networks:
       - bb-network
 
@@ -38,4 +38,3 @@ volumes:
 
 networks:
   bb-network:
-    driver: bridge

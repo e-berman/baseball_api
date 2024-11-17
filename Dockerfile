@@ -1,23 +1,13 @@
-# FROM golang:latest
-FROM golang:latest
-
-# set the working directory inside the container
+FROM golang:latest AS build
 WORKDIR /baseball_api
-
-# copy contents
-COPY . ./
-
-# download dependencies
+COPY . .
 RUN go mod download
-
-# change working directory to where main.go is stored
 WORKDIR /baseball_api/cmd/baseball_api
-
-# build executable
 RUN go build -o main
 
-# expose api port
+FROM golang:latest
+WORKDIR /baseball_api
+COPY --from=build /baseball_api/cmd/baseball_api/main ./main
+COPY --from=build /baseball_api/assets ./assets
 EXPOSE 4242
-
-# run the executable
 CMD ["./main"]
