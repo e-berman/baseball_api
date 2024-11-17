@@ -223,7 +223,7 @@ func ReadFromCSVPositionPlayer() []*models.PositionPlayer {
 }
 
 func ReadFromCSVPitcher() []*models.Pitcher {
-	file, err := os.Open("../../assets/pitchers.csv")
+	file, err := os.Open("./assets/pitchers.csv")
 	if err != nil {
 		log.Fatalf("Unable to open CSV file: %v\n", err)
 	}
