@@ -1,7 +1,8 @@
 version: "3.9"
 
 services:
-  rest_api:
+  rest-api:
+    image: rest-api
     build:
       # set to directory where Dockerfile exists
       context: .
@@ -38,3 +39,4 @@ volumes:
 
 networks:
   bb-network:
+    driver: bridge

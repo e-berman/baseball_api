@@ -8,14 +8,14 @@ import (
 )
 
 func main() {
-	dbpool := Init()
+	dbpool := setup()
 	defer dbpool.Poolconn.Close()
 
 	server := routes.NewServer(":4242", dbpool)
 	server.StartServer()
 }
 
-func Init() *db.DBPool {
+func setup() *db.DBPool {
 	dbpool, err := db.NewDBPool()
 	if err != nil {
 		log.Fatal(err)

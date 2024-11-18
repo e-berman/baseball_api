@@ -1,6 +1,6 @@
 module github.com/e-berman/baseball_api
 
-go 1.20
+go 1.23.1
 
 require (
 	github.com/jackc/pgx/v5 v5.5.4
