@@ -238,6 +238,7 @@ func (s *Server) handleUpdatePositionPlayer(rw http.ResponseWriter, req *http.Re
 	player.WAR = updatePositionPlayerReq.WAR
 
 	if err := s.db.UpdatePositionPlayer(player); err != nil {
+		log.Println("error updating position player in database")
 		return err
 	}
 
