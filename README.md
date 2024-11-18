@@ -23,25 +23,8 @@ OpenAPI specification available -> [HERE](https://app.swaggerhub.com/apis/e-berm
 
 3. Database will import .csv data if added. You can access the database with the following: `make db`
 
-## Endpoints
 
-| HTTP Verbs | Endpoints | Action |
-| --- | --- | --- |
-| GET | /api/position_players/ | retrieve all position players |
-| GET | /api/position_players/:id | retrieve a single position player by id |
-| POST | /api/position_players/ | add a new position player |
-| PUT | /api/position_players/:id | edit field(s) of a single position player |
-| DELETE | /api/position_players/:id | delete a single position player |
-| --- | --- | --- |
-| GET | /api/pitchers/ | retrieve all pitchers |
-| GET | /api/pitchers/:id | retrieve a single pitcher by id |
-| POST | /api/pitchers/ | add a new pitcher |
-| PUT | /api/pitchers/:id | edit field(s) of a single pitcher |
-| DELETE | /api/pitchers/:id | delete a single pitcher |
-
-
-Example URL: `http://127.0.0.1:4242/api/position_players/`
-
+Example URL: `http://localhost:4242/api/position_players/`
 
 Example JSON Payload for a position player:
 
@@ -68,14 +51,42 @@ Example JSON Payload for a position player:
     "baseRunning": 1.5,
     "winsAboveReplacement": 4.5,
 }
+
+```
+Example JSON Payload for a pitcher:
+```
+{
+    "id": 1,
+    "name": "Aaron Nola",
+    "team": "PHI",
+    "wins": 11,
+    "losses": 13,
+    "saves": 0,
+    "games": 32,
+    "gamesSaved": 32,
+    "inningsPitched": 205,
+    "strikeoutsPerNine": 10.32,
+    "walksPerNine": 1.27,
+    "homeRunsPerNine": 0.83,
+    "battingAvgBallsInPlay": 0.289,
+    "leftOnBase": 73,
+    "groundballRate": 43.6,
+    "homeRunToFlyBallRatio": 9.8,
+    "fourseamFastballVelocity": 92.9,
+    "earnedRunAvg": 3.25,
+    "expectedEarnedRunAvg": 2.74,
+    "fielderIndependentPitching": 2.58,
+    "expectedFielderIndependentPitching": 2.77,
+    "winsAboveReplacement": 6.3
+}
 ```
 
 ## To Do 
 
 - [x] add pitchers db table and api endpoints
+- [x] refactor Dockerfile to multi-stage build
 - [ ] improve unit testing
 - [ ] add daily csv import from reliable baseball statistics source (fangraphs or baseball savant?)
 - [ ] build out front-end for documentation and api usage
-- [x] refactor Dockerfile to multi-stage build
 
 
