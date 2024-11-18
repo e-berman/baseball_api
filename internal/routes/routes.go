@@ -63,7 +63,8 @@ func (s *Server) StartServer() {
 		WriteTimeout: 5 * time.Second,
 	}
 
-	sm.HandleFunc("/api/players/", toHandleFunc(s.handlePlayers))
+	sm.HandleFunc("/api/position_players/", toHandleFunc(s.handlePositionPlayers))
+	sm.HandleFunc("/api/pitchers/", toHandleFunc(s.handlePitchers))
 
 	log.Println("Server started on port", server.Addr)
 
@@ -87,7 +88,7 @@ func (s *Server) getIDFromPath(req *http.Request) (int, error) {
 // handlePlayers handles the various routes given the respective request method
 //
 // conditionally separated based on whether a player id exists in the url or not
-func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error {
+func (s *Server) handlePositionPlayers(rw http.ResponseWriter, req *http.Request) error {
 	if req.URL.Path == "/api/position_players/" {
 		if req.Method == http.MethodGet {
 			return s.handleGetPositionPlayers(rw, req)
@@ -103,11 +104,17 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 			return s.handleGetPositionPlayerByID(rw, req)
 		}
 		if req.Method == http.MethodPut {
-
 			return s.handleUpdatePositionPlayer(rw, req)
 		}
 	}
-	
+
+	return fmt.Errorf("invalid method for position players: %s", req.Method)
+}
+
+// handlePlayers handles the various routes given the respective request method
+//
+// conditionally separated based on whether a player id exists in the url or not
+func (s *Server) handlePitchers(rw http.ResponseWriter, req *http.Request) error {
 	if req.URL.Path == "/api/pitchers/" {
 		if req.Method == http.MethodGet {
 			return s.handleGetPitchers(rw, req)
@@ -123,14 +130,11 @@ func (s *Server) handlePlayers(rw http.ResponseWriter, req *http.Request) error 
 			return s.handleGetPitcherByID(rw, req)
 		}
 		if req.Method == http.MethodPut {
-
 			return s.handleUpdatePitcher(rw, req)
 		}
 	}
 
-
-
-	return fmt.Errorf("invalid method %s", req.Method)
+	return fmt.Errorf("invalid method for pitchers: %s", req.Method)
 }
 
 func (s *Server) handleGetPositionPlayers(rw http.ResponseWriter, req *http.Request) error {
