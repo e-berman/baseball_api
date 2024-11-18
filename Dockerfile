@@ -3,6 +3,7 @@ WORKDIR /baseball_api
 COPY . .
 RUN go mod download
 WORKDIR /baseball_api/cmd/baseball_api
+# CGO_ENABLED required for static linking when using alpine distro
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main
 
 FROM alpine:latest
