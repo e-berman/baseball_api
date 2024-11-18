@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/csv"
 	"log"
+	"math"
 	"os"
 	"strconv"
-	"math"
-	
+
 	"github.com/e-berman/baseball_api/internal/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
@@ -192,29 +192,29 @@ func ReadFromCSVPositionPlayer() []*models.PositionPlayer {
 		}
 
 		adjusted_bb_rate := ConvertToFloat(record[9]) * 100
-		adjusted_k_rate := ConvertToFloat(record[10])* 100
+		adjusted_k_rate := ConvertToFloat(record[10]) * 100
 
 		row := &models.PositionPlayer{
-			Name:		record[0],
-			Team:		record[1],
-			G:		ConvertToInt(record[2]),
-			PA:		ConvertToInt(record[3]),
-			HR:		ConvertToInt(record[4]),
-			R:		ConvertToInt(record[5]),
-			RBI:		ConvertToInt(record[6]),
-			SB:		ConvertToInt(record[7]),
-			WRCPlus:	ConvertFloatToInt(record[8]),
-			BbRate:		roundFloat(adjusted_bb_rate, 1),
-			KRate:		roundFloat(adjusted_k_rate, 1),
-			ISO:		roundFloat(ConvertToFloat(record[11]), 3),
-			BABIP:		roundFloat(ConvertToFloat(record[12]), 3),
-			AVG:		roundFloat(ConvertToFloat(record[13]), 3),
-			OBP:		roundFloat(ConvertToFloat(record[14]), 3),
-			SLG:		roundFloat(ConvertToFloat(record[15]), 3),
-			WOBA:		roundFloat(ConvertToFloat(record[16]), 3),
-			XWOBA:		roundFloat(ConvertToFloat(record[17]), 3),
-			BsR:		roundFloat(ConvertToFloat(record[18]), 1),
-			WAR:		roundFloat(ConvertToFloat(record[19]), 1),
+			Name:    record[0],
+			Team:    record[1],
+			G:       ConvertToInt(record[2]),
+			PA:      ConvertToInt(record[3]),
+			HR:      ConvertToInt(record[4]),
+			R:       ConvertToInt(record[5]),
+			RBI:     ConvertToInt(record[6]),
+			SB:      ConvertToInt(record[7]),
+			WRCPlus: ConvertFloatToInt(record[8]),
+			BbRate:  roundFloat(adjusted_bb_rate, 1),
+			KRate:   roundFloat(adjusted_k_rate, 1),
+			ISO:     roundFloat(ConvertToFloat(record[11]), 3),
+			BABIP:   roundFloat(ConvertToFloat(record[12]), 3),
+			AVG:     roundFloat(ConvertToFloat(record[13]), 3),
+			OBP:     roundFloat(ConvertToFloat(record[14]), 3),
+			SLG:     roundFloat(ConvertToFloat(record[15]), 3),
+			WOBA:    roundFloat(ConvertToFloat(record[16]), 3),
+			XWOBA:   roundFloat(ConvertToFloat(record[17]), 3),
+			BsR:     roundFloat(ConvertToFloat(record[18]), 1),
+			WAR:     roundFloat(ConvertToFloat(record[19]), 1),
 		}
 		players = append(players, row)
 	}
@@ -247,27 +247,27 @@ func ReadFromCSVPitcher() []*models.Pitcher {
 		adjusted_hrfb_rate := ConvertToFloat(record[14]) * 100
 
 		row := &models.Pitcher{
-			Name:		record[0],
-			Team:		record[1],
-			W:		ConvertToInt(record[2]),
-			L:		ConvertToInt(record[3]),
-			SV:		ConvertToInt(record[4]),
-			G:		ConvertToInt(record[5]),
-			GS:		ConvertToInt(record[6]),
-			IP:		ConvertToFloat(record[7]),
-			K9:		roundFloat(ConvertToFloat(record[8]), 2),
-			BB9:		roundFloat(ConvertToFloat(record[9]), 2),
-			HR9:		roundFloat(ConvertToFloat(record[10]), 2),
-			BABIP:		roundFloat(ConvertToFloat(record[11]), 3),
-			LOB:		roundFloat(adjusted_lob, 1),
-			GB:		roundFloat(adjusted_gb_rate, 1),
-			HRFB:		roundFloat(adjusted_hrfb_rate, 1),
-			VFA:		roundFloat(ConvertToFloat(record[15]), 1),
-			ERA:		roundFloat(ConvertToFloat(record[16]), 2),
-			XERA:		roundFloat(ConvertToFloat(record[17]), 2),
-			FIP:		roundFloat(ConvertToFloat(record[18]), 2),
-			XFIP:		roundFloat(ConvertToFloat(record[19]), 2),
-			WAR:		roundFloat(ConvertToFloat(record[20]), 1),
+			Name:  record[0],
+			Team:  record[1],
+			W:     ConvertToInt(record[2]),
+			L:     ConvertToInt(record[3]),
+			SV:    ConvertToInt(record[4]),
+			G:     ConvertToInt(record[5]),
+			GS:    ConvertToInt(record[6]),
+			IP:    ConvertToFloat(record[7]),
+			K9:    roundFloat(ConvertToFloat(record[8]), 2),
+			BB9:   roundFloat(ConvertToFloat(record[9]), 2),
+			HR9:   roundFloat(ConvertToFloat(record[10]), 2),
+			BABIP: roundFloat(ConvertToFloat(record[11]), 3),
+			LOB:   roundFloat(adjusted_lob, 1),
+			GB:    roundFloat(adjusted_gb_rate, 1),
+			HRFB:  roundFloat(adjusted_hrfb_rate, 1),
+			VFA:   roundFloat(ConvertToFloat(record[15]), 1),
+			ERA:   roundFloat(ConvertToFloat(record[16]), 2),
+			XERA:  roundFloat(ConvertToFloat(record[17]), 2),
+			FIP:   roundFloat(ConvertToFloat(record[18]), 2),
+			XFIP:  roundFloat(ConvertToFloat(record[19]), 2),
+			WAR:   roundFloat(ConvertToFloat(record[20]), 1),
 		}
 		players = append(players, row)
 	}
@@ -441,14 +441,14 @@ func (pool *DBPool) UpdatePositionPlayer(player *models.PositionPlayer) error {
 	k_rate = $11,
 	iso = $12,
 	babip = $13,
-	average = $13,
-	obp = $14,
-	slg = $15,
-	woba = $16,
-	x_woba = $17,
-	bsr = $18,
-	war = $19,
-	WHERE player_id = $20`
+	average = $14,
+	obp = $15,
+	slg = $16,
+	woba = $17,
+	x_woba = $18,
+	bsr = $19,
+	war = $20
+	WHERE player_id = $21`
 
 	res, err := pool.Poolconn.Exec(context.Background(), query,
 		&player.Name,
@@ -489,7 +489,6 @@ func (pool *DBPool) DeletePositionPlayer(id int) error {
 	_, err := pool.Poolconn.Exec(context.Background(), query, id)
 	return err
 }
-
 
 // *******************
 // Pitcher methods
@@ -647,7 +646,7 @@ func (pool *DBPool) UpdatePitcher(player *models.Pitcher) error {
 	xera = $18,
 	fip = $19,
 	xfip = $20,
-	war = $21,
+	war = $21
 	WHERE player_id = $22`
 
 	res, err := pool.Poolconn.Exec(context.Background(), query,
